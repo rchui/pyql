@@ -6,6 +6,7 @@ This file defines the main body of the pyql query process.
 import sys
 import argparse
 from Interface.dblib import create, check, scan
+from Query.querylib import query
 from Data.datalib import get_tables
 
 FLAGS = None
@@ -31,7 +32,10 @@ def main(argv):
     else: # Choose a potenital database if none provided.
         database = scan()
     tables = get_tables(database)
-    print(tables)
+
+    while True:
+        query_statement = query(tables)
+
 
 if __name__ == '__main__':
     # Create argument parser.
