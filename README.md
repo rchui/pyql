@@ -9,7 +9,7 @@
     -n DATABASE, --new DATABASE         create a new database
 
 ## TODO:
-- [ ] Query Loop
+- [x] Query Loop
 - [ ] SQL Query Parsing
 - [ ] Table Loading
 - [ ] Table Parsing
