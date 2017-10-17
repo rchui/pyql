@@ -6,4 +6,4 @@
 ## Optional Arguments
      -h, --help                           show this help message and exit
      -d DATABASE, --database DATABASE     Database to query from.
-     -n NEW, --new NEW                     Create a new database.
+     -n NEW, --new NEW                    Create a new database.
