@@ -10,7 +10,7 @@
 
 ## TODO:
 - [x] Query Loop
-- [ ] SQL Query Parsing
+- [x] SQL Query Parsing
 - [ ] Table Loading
 - [ ] Table Parsing
 - [ ] Boolean Operators
