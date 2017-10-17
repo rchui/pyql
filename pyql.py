@@ -8,6 +8,7 @@ import argparse
 from Interface.dblib import create, check, scan
 from Query.querylib import query
 from Data.datalib import get_tables
+from Parser.parselib import parse_query
 
 FLAGS = None
 """
@@ -35,7 +36,7 @@ def main(argv):
 
     while True:
         query_statement = query(tables)
-
+        selects, froms, wheres = parse_query(query_statement)
 
 if __name__ == '__main__':
     # Create argument parser.
