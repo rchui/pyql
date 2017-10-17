@@ -16,7 +16,7 @@ FLAGS = None
 
 def main(argv):
     """ The main body of the pyql query process
-    
+
     Args:
         argv: user passed arguments.
 

@@ -38,7 +38,7 @@ def create(database):
 
 def check(database):
     """ Checks if the selected database exists.
-    
+
     Args:
         database: name of the database.
 
