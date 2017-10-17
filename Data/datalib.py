@@ -19,7 +19,7 @@ def get_tables(database):
         tables = []
         for line in db_file:
             table = line.strip()
-            if Path(table).is_file(): # If the table exists.
+            if Path(table).is_file(): # Check for table existence.
                 tables.append(table)
             else: # Else exit.
                 sys.exit('\n' + table + ' in ' + database + ' does not exist.\n')

@@ -52,4 +52,6 @@ if __name__ == '__main__':
 
     # Gather arguments.
     FLAGS, UNPARSED = PARSER.parse_known_args()
+
+    # Start program.
     main(argv=[sys.argv[0]] + UNPARSED)
