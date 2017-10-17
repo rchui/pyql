@@ -16,7 +16,7 @@ FLAGS = None
     database: the name of the database to query.
 """
 
-def main(argv):
+def main():
     """ The main body of the pyql query process
 
     Args:
@@ -59,4 +59,4 @@ if __name__ == '__main__':
     FLAGS, UNPARSED = PARSER.parse_known_args()
 
     # Start program.
-    main(argv=[sys.argv[0]] + UNPARSED)
+    main()
