@@ -10,7 +10,14 @@ from Interface.dblib import create, check, scan
 FLAGS = None
 
 def main(argv):
-    """ The main body of the pyql query process"""
+    """ The main body of the pyql query process
+    
+    Args:
+        argv: user passed arguments.
+
+    Returns:
+        None
+    """
     database = ''
     if FLAGS.new != '': # Create a new database.
         database = create(FLAGS.new)
