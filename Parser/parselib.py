@@ -31,14 +31,20 @@ def parse_query(query):
         query: query to parse
 
     Returns:
-        None
+        selects: select values
+        froms: from values
+        wheres: where values
     """
     print_query(query)
+    # Parse the SQL query
     parsed_query = sqlparse.parse(query)[0]
+    # Split into tokens
     tokens = [str(token) for token in parsed_query if str(token) != ' ']
+    # Get select values
     selects = [token.strip() for token in tokens[1].split(',')]
+    # Get from values
     froms = [token.strip() for token in tokens[3].split(',')]
-
+    # Get where values
     # Don't ask what this does. It just works lol.
     wheres = [[subtoken.strip() for subtoken in re.split(r'(>=|<=|<>|=|<|>)', token.strip())]
               for token in re.split(r'(and|or|not|AND|OR|NOT|like|LIKE)',
