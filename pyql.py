@@ -40,14 +40,14 @@ if __name__ == '__main__':
         '-d', '--database',
         type=str,
         default='',
-        help='database to query from.'
+        help='query database with given name'
     )
     PARSER.add_argument(
         '-n', '--new',
         metavar='DATABASE',
         type=str,
         default='',
-        help='create a new database.'
+        help='create a new database with given name'
     )
 
     # Gather arguments.
