@@ -8,6 +8,10 @@ import argparse
 from Interface.dblib import create, check, scan
 
 FLAGS = None
+"""
+    new: the name of the new database.
+    database: the name of the database to query.
+"""
 
 def main(argv):
     """ The main body of the pyql query process
