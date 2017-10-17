@@ -6,7 +6,7 @@ This file defines functions that deal with data handling.
 import sys
 from pathlib import Path
 
-def load(database):
+def get_tables(database):
     """ Gets the list of tables in the database.
 
     Args:
