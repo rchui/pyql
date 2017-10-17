@@ -51,11 +51,11 @@ def check(database):
         sys.exit('\n' + database + ' does not exist.\n')
 
 def choose(db_files):
-    """ Choose a database to load. 
-    
+    """ Choose a database to load.
+
     Args:
         None
-    
+
     Returns:
         database: name of the database.
     """
