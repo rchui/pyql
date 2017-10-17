@@ -4,16 +4,44 @@ This file defines the main body of the pyql query process.
 """
 
 import sys
-from Interface.help import print_help
-from Interface.choosedb import choose
+import argparse
+from Interface.dblib import create, check, scan
 
-def main():
-    """ The main body of the pyql query process"""
-    database = choose().replace('.db', '') + '.db'
-    print(database)
+FLAGS = None
+
+def main(argv):
+    """ The main body of the pyql query process
+    
+    Args:
+        argv: user passed arguments.
+
+    Returns:
+        None
+    """
+    database = ''
+    if FLAGS.new != '': # Create a new database.
+        database = create(FLAGS.new)
+    elif FLAGS.database != '': # Load an existing database.
+        database = check(FLAGS.database)
+    else: # Choose a potenital database if none provided.
+        database = scan()
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        if sys.argv[1] == '-h' or sys.argv[1] == '--help':
-            print_help()
-    main()
+    # Create argument parser.
+    PARSER = argparse.ArgumentParser()
+    PARSER.add_argument(
+        '-d', '--database',
+        type=str,
+        default='',
+        help='Database to query from.'
+    )
+    PARSER.add_argument(
+        '-n', '--new',
+        type=str,
+        default='',
+        help='Create a new database.'
+    )
+
+    # Gather arguments.
+    FLAGS, UNPARSED = PARSER.parse_known_args()
+    main(argv=[sys.argv[0]] + UNPARSED)
