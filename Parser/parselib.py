@@ -41,7 +41,8 @@ def parse_query(query):
 
     # Don't ask what this does. It just works lol.
     wheres = [[subtoken.strip() for subtoken in re.split(r'(>=|<=|<>|=|<|>)', token.strip())]
-              for token in re.split(r'(and|or|not|AND|OR|NOT)', re.sub(r'(where|WHERE|;)', '', tokens[-1])
+              for token in re.split(r'(and|or|not|AND|OR|NOT|like|LIKE)',
+                                    re.sub(r'(where|WHERE|;)', '', tokens[-1])
                                     .replace("'", '')
                                     .strip())]
 
