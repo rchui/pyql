@@ -44,6 +44,7 @@ if __name__ == '__main__':
     )
     PARSER.add_argument(
         '-n', '--new',
+        metavar='DATABASE',
         type=str,
         default='',
         help='create a new database.'
