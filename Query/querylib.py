@@ -6,6 +6,9 @@ This file defines functions for querying the database tables.
 import sys
 from Interface.helplib import query_options, print_tables, print_attributes, print_query
 
+OPERATORS = ['>=', '<=', '<>', '=', '<', '>', 'like']
+BOOLEAN = ['and', 'or', 'not']
+
 def query(tables, attributes):
     """ Main body of the query loop.
 
@@ -64,22 +67,6 @@ def check_attribute(attribute, tables, attributes):
             return result
     return True
 
-def is_number(value):
-    """ Checks if a string is a number or not.
-
-    Args:
-        value: the string to check
-
-    Returns:
-        True: if a number
-        False: else
-    """
-    try:
-        float(value)
-        return True
-    except ValueError:
-        return False
-
 def check_valid(selects, froms, wheres, tables, attributes):
     """ Checks the validity of the query.
 
@@ -95,17 +82,25 @@ def check_valid(selects, froms, wheres, tables, attributes):
     """
     # Check validity of tables
     for table in froms:
-        print(table)
         if table not in tables.keys():
             return False
 
     # Check validty of attributes
     for attribute in selects:
-        print(attribute)
         if not check_attribute(attribute, tables, attributes):
             return False
 
-    # TODO: wheres validity
-
-
+    # Check validity of where statements
+    for i in range(0, len(wheres), 2):
+        if wheres[i][1].lower() not in OPERATORS:
+            return False
+        if '.' in wheres[i][0]:
+            if not check_attribute(wheres[i][0], tables, attributes):
+                return False
+        if '.' in wheres[i][2]:
+            if not check_attribute(wheres[i][0], tables, attributes):
+                return False
+    for i in range(1, len(wheres), 2):
+        if wheres[i][0] not in BOOLEAN:
+            return False
     return True
