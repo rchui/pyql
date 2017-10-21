@@ -6,11 +6,11 @@ import re
 #check if either of the two input strings is actually a float data structre, and convert if so. This function is called in each comparison operator function
 def is_float(num1, num2):
     try:
-        num1=float(num1)
+        num1 = float(num1)
     except:
         pass
-    try: 
-        num2=float(num2)
+    try:
+        num2 = float(num2)
     except:
         pass
     return num1, num2
@@ -22,7 +22,7 @@ def equal(v1,v2):
     Args:
         v1: first string in WHERE subquery
         v2: second string in WHERE subquery
-    
+
     Returns:
         boolean value for SQL equal comparison, =
     """
@@ -53,7 +53,7 @@ def greater_than_or_equal(v1, v2):
     Args:
         v1: first string in WHERE subquery
         v2: second string in WHERE subquery
-    
+
     Returns:
         boolean value for SQL greater than or equal comparison, >=
     """
@@ -70,7 +70,7 @@ def not_equal(v1, v2):
     Args:
         v1: first string in WHERE subquery
         v2: second string in WHERE subquery
-    
+
     Returns:
         boolean value for SQL not equal comparison, <>
     """
@@ -84,7 +84,7 @@ def less_than(v1, v2):
     Args:
         v1: first string in WHERE subquery
         v2: second string in WHERE subquery
-    
+
     Returns:
         boolean value for SQL less than comparison, >
     """
@@ -101,7 +101,7 @@ def greater_than(v1, v2):
     Args:
         v1: first string in WHERE subquery
         v2: second string in WHERE subquery
-    
+
     Returns:
         boolean value for SQL greater than comparison, >
     """
@@ -122,11 +122,11 @@ def like(v1, v2):
     _: any character
     """
 
-    v2=v2.replace('%', '.+') #convert SQL any string to 1 or more characters in regex
-    v2=v2.replace('_', '.') #convert SQL any character to 1 charachter in regex
-    pattern=re.compile(v2) #match object will exist only if pattern matches
-    match=pattern.match(v1)
-    if match: 
+    v2 = v2.replace('%', '.+') #convert SQL any string to 1 or more characters in regex
+    v2 = v2.replace('_', '.') #convert SQL any character to 1 charachter in regex
+    pattern = re.compile(v2) #match object will exist only if pattern matches
+    match = pattern.match(v1)
+    if match:
         return True
     else:
         return False
