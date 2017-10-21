@@ -36,7 +36,7 @@ def create(database):
     with open(database + '.db', 'w') as file:
         for table in tables:
             file.write(table + '\n')
-    return database
+    return database + '.db'
 
 
 def check(database):
