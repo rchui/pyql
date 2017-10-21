@@ -1,7 +1,7 @@
 # pyql
 
 ## Usage
-    pyql.py [-h] [-d DATABASE] [-n NEW]
+    pyql.py [-h] [-d DATABASE] [-n DATABASE]
 
 ## Optional Arguments
     -h, --help                          show this help message and exit
