@@ -5,6 +5,15 @@ import re
 
 #check if either of the two input strings is actually a float data structre, and convert if so. This function is called in each comparison operator function
 def is_float(num1, num2):
+    """
+    Check if either of the two input strings is actually a float data structre, and convert if so. This function is called in each comparison operator function
+    
+    Args:
+        num1: first string in WHERE subquery
+        num2: second string in WHERE subquery
+    Returns:
+        tuple of inputs converted to float if possible, or string
+    """
     try:
         num1 = float(num1)
     except:
@@ -16,116 +25,111 @@ def is_float(num1, num2):
     return num1, num2
 
 
-#return boolean value for '=' operator
-def equal(v1,v2):
+def equal(value1,value2):
     """
     Args:
-        v1: first string in WHERE subquery
-        v2: second string in WHERE subquery
-
+        value1: first string in WHERE subquery
+        value2: second string in WHERE subquery
+    
     Returns:
         boolean value for SQL equal comparison, =
     """
 
-    v1, v2 = is_float(v1, v2)
-    return v1 == v2
+    value1, value2 = is_float(value1, value2)
+    return value1 == value2
 
 
-def less_than_or_equal(v1, v2):
+def less_than_or_equal(value1, value2):
     """
     Args:
-        v1: first string in WHERE subquery
-        v2: second string in WHERE subquery
-    
+        value1: first string in WHERE subquery
+        value2: second string in WHERE subquery
+
     Returns:
         boolean value for SQL less than or equal comparison, <=
     """
 
-    v1, v2 = is_float(v1, v2)
-    if type(v1) != type(v2): #will never be true
+    value1, value2 = is_float(value1, value2)
+    if type(value1) != type(value2): #will never be true
         return False
     else:
-        return v1 <= v2
+        return value1 <= value2
 
 
-def greater_than_or_equal(v1, v2):
+def greater_than_or_equal(value1, value2):
     """
     Args:
-        v1: first string in WHERE subquery
-        v2: second string in WHERE subquery
-
+        value1: first string in WHERE subquery
+        value2: second string in WHERE subquery
     Returns:
         boolean value for SQL greater than or equal comparison, >=
     """
 
-    v1, v2 = is_float(v1, v2)
-    if type(v1) != type(v2):
+    value1, value2 = is_float(value1, value2)
+    if type(value1) != type(value2):
         return False
     else:
-        return v1 >= v2
+        return value1 >= value2
 
 
-def not_equal(v1, v2):
+def not_equal(value1, value2):
     """
     Args:
-        v1: first string in WHERE subquery
-        v2: second string in WHERE subquery
-
+        value1: first string in WHERE subquery
+        value2: second string in WHERE subquery
     Returns:
         boolean value for SQL not equal comparison, <>
     """
 
-    v1, v2 = is_float(v1, v2)
-    return v1 != v2
+    value1, value2 = is_float(value1, value2)
+    return value1 != value2
 
 
-def less_than(v1, v2):
+def less_than(value1, value2):
     """
     Args:
-        v1: first string in WHERE subquery
-        v2: second string in WHERE subquery
-
+        value1: first string in WHERE subquery
+        value2: second string in WHERE subquery
     Returns:
         boolean value for SQL less than comparison, >
     """
 
-    v1, v2 = is_float(v1, v2)
-    if type(v1) != type(v2):
+    value1, value2 = is_float(value1, value2)
+    if type(value1) != type(value2):
         return False
     else:
-        return v1 < v2
+        return value1 < value2
 
 
-def greater_than(v1, v2):
+def greater_than(value1, value2):
     """
     Args:
-        v1: first string in WHERE subquery
-        v2: second string in WHERE subquery
-
+        value1: first string in WHERE subquery
+        value2: second string in WHERE subquery
     Returns:
         boolean value for SQL greater than comparison, >
     """
 
-    v1, v2 = is_float(v1, v2)
-    if type(v1) != type(v2):
+    value1, value2 = is_float(value1, value2)
+    if type(value1) != type(value2):
         return False
     else:
-        return v1 > v2
+        return value1 > value2
 
 
 
-def like(v1, v2):
+def like(value1, value2):
     """
     return boolean value with the like comparison operator
-    assumes that v1 is beings compared with LIKE to v2
+    assumes that value1 is beings compared with LIKE to value2
     %: any string
     _: any character
     """
 
-    v2 = v2.replace('%', '.+') #convert SQL any string to 1 or more characters in regex
-    v2 = v2.replace('_', '.') #convert SQL any character to 1 charachter in regex
-    pattern = re.compile(v2) #match object will exist only if pattern matches
-    match = pattern.match(v1)
+    value2=value2.replace('%', '.+') #convert SQL any string to 1 or more characters in regex
+    value2=value2.replace('_', '.') #convert SQL any character to 1 charachter in regex
+    pattern=re.compile(value2) 
+    match=pattern.match(value1) #match object will exist only if pattern matches
     if match:
         return True
     else:
