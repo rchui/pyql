@@ -28,15 +28,9 @@ def is_float(num1, num2):
 def equal(value1,value2):
     """
     Args:
-<<<<<<< HEAD
         value1: first string in WHERE subquery
         value2: second string in WHERE subquery
     
-=======
-        v1: first string in WHERE subquery
-        v2: second string in WHERE subquery
-
->>>>>>> 63997aa2333b7addc04234c36e8ac1c6d4a8f652
     Returns:
         boolean value for SQL equal comparison, =
     """
@@ -65,15 +59,8 @@ def less_than_or_equal(value1, value2):
 def greater_than_or_equal(value1, value2):
     """
     Args:
-<<<<<<< HEAD
         value1: first string in WHERE subquery
         value2: second string in WHERE subquery
-    
-=======
-        v1: first string in WHERE subquery
-        v2: second string in WHERE subquery
-
->>>>>>> 63997aa2333b7addc04234c36e8ac1c6d4a8f652
     Returns:
         boolean value for SQL greater than or equal comparison, >=
     """
@@ -88,15 +75,8 @@ def greater_than_or_equal(value1, value2):
 def not_equal(value1, value2):
     """
     Args:
-<<<<<<< HEAD
         value1: first string in WHERE subquery
         value2: second string in WHERE subquery
-    
-=======
-        v1: first string in WHERE subquery
-        v2: second string in WHERE subquery
-
->>>>>>> 63997aa2333b7addc04234c36e8ac1c6d4a8f652
     Returns:
         boolean value for SQL not equal comparison, <>
     """
@@ -108,15 +88,8 @@ def not_equal(value1, value2):
 def less_than(value1, value2):
     """
     Args:
-<<<<<<< HEAD
         value1: first string in WHERE subquery
         value2: second string in WHERE subquery
-    
-=======
-        v1: first string in WHERE subquery
-        v2: second string in WHERE subquery
-
->>>>>>> 63997aa2333b7addc04234c36e8ac1c6d4a8f652
     Returns:
         boolean value for SQL less than comparison, >
     """
@@ -131,15 +104,8 @@ def less_than(value1, value2):
 def greater_than(value1, value2):
     """
     Args:
-<<<<<<< HEAD
         value1: first string in WHERE subquery
         value2: second string in WHERE subquery
-    
-=======
-        v1: first string in WHERE subquery
-        v2: second string in WHERE subquery
-
->>>>>>> 63997aa2333b7addc04234c36e8ac1c6d4a8f652
     Returns:
         boolean value for SQL greater than comparison, >
     """
@@ -160,19 +126,11 @@ def like(value1, value2):
     _: any character
     """
 
-<<<<<<< HEAD
     value2=value2.replace('%', '.+') #convert SQL any string to 1 or more characters in regex
     value2=value2.replace('_', '.') #convert SQL any character to 1 charachter in regex
     pattern=re.compile(value2) 
     match=pattern.match(value1) #match object will exist only if pattern matches
-    if match: 
-=======
-    v2 = v2.replace('%', '.+') #convert SQL any string to 1 or more characters in regex
-    v2 = v2.replace('_', '.') #convert SQL any character to 1 charachter in regex
-    pattern = re.compile(v2) #match object will exist only if pattern matches
-    match = pattern.match(v1)
     if match:
->>>>>>> 63997aa2333b7addc04234c36e8ac1c6d4a8f652
         return True
     else:
         return False
