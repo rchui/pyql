@@ -42,7 +42,7 @@ def less_than_or_equal(v1, v2):
     """
 
     v1, v2 = is_float(v1, v2)
-    if type(v1) != type(v2): #will never be true 
+    if type(v1) != type(v2): #will never be true
         return False
     else:
         return v1 <= v2
@@ -130,4 +130,3 @@ def like(v1, v2):
         return True
     else:
         return False
-
