@@ -16,11 +16,27 @@ def get_tables(database):
         tables: the tables of the database.
     """
     with open(database) as db_file:
-        tables = []
+        tables = {}
         for line in db_file:
             table = line.strip()
             if Path(table).is_file(): # Check for table existence.
-                tables.append(table)
+                tables[table.split('.')[0]] = table.split('.')[1]
             else: # Else exit.
                 sys.exit('\n' + table + ' in ' + database + ' does not exist.\n')
     return tables
+
+def get_attributes(tables):
+    """ Gets the list of attributes for each table in the database.
+
+    Args:
+        tables: the name of the tables.
+
+    Returns:
+        attributes: the attributes for all the tables.
+    """
+    attributes = {}
+    for name, file_type in tables.items():
+        table = name + '.' + file_type
+        with open(table) as relation:
+            attributes[name] = relation.readline().strip().split(',')
+    return attributes
