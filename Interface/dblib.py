@@ -23,11 +23,14 @@ def create(database):
     print('\nTables to include in ' + database + ' (press enter to close):')
     while True:
         table = input('  > ')
-        if table == '':
+        if table == '': # Exit when no table entered.
             break
         else:
-            if Path(table).is_file():
-                tables.append(table)
+            if Path(table).is_file(): # Check for table existence.
+                if table not in tables: # Check for table uniqueness.
+                    tables.append(table)
+                else:
+                    print(table + ' is already in the database.')
             else:
                 print(table + ' does not exist.')
     with open(database + '.db', 'w') as file:
