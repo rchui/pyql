@@ -35,24 +35,33 @@ def parse_query(query):
         froms: from values
         wheres: where values
     """
-    print_query(query)
-    # Parse the SQL query
-    parsed_query = sqlparse.parse(query)[0]
-    # Split into tokens
-    tokens = [str(token) for token in parsed_query if str(token) != ' ']
-    # Get select values
-    selects = [token.strip() for token in tokens[1].split(',')]
-    # Get from values
-    froms = [token.strip() for token in tokens[3].split(',')]
-    # Get where values
-    # Don't ask what this does. It just works lol.
-    wheres = [[subtoken.strip() for subtoken in re.split(r'(>=|<=|<>|=|<|>|like|LIKE)', token.strip())]
-              for token in re.split(r'(and|or|not|AND|OR|NOT)',
-                                    re.sub(r'(where|WHERE|;|\')', '', tokens[-1])
-                                    .strip())]
+    try:
+        print_query(query)
+        # Parse the SQL query
+        parsed_query = sqlparse.parse(query)[0]
+        # Split into tokens
+        tokens = [str(token) for token in parsed_query if str(token) != ' ']
+        # Get select values
+        selects = [token.strip() for token in tokens[1].split(',')]
+        # Get from values
+        froms = [token.strip() for token in tokens[3].split(',')]
+        # Get where values
+        # Don't ask what this does. It just works lol.
+        wheres = [[subtoken.strip() for subtoken in re.split(r'(>=|<=|<>|=|<|>|like|LIKE)', token.strip())]
+                for token in re.split(r'(and|or|not|AND|OR|NOT)',
+                                        re.sub(r'(where|WHERE|;|\'|‘|")', '', tokens[-1])
+                                        .strip())]
 
-    print(selects)
-    print(froms)
-    print(wheres)
+        for i in range(0, len(wheres), 2):
+            wheres[i][1] = wheres[i][1].lower()
+        for i in range(1, len(wheres), 2):
+            wheres[i] = [wheres[i][0].lower()]
 
-    return selects, froms, wheres
+        # print(selects)
+        # print(froms)
+        # print(wheres)
+
+        return selects, froms, wheres, True
+    except:
+        print('\nInvalid query.')
+        return selects, froms, wheres, False

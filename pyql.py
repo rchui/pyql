@@ -39,9 +39,9 @@ def main():
 
     while True:
         query_statement = query(tables, attributes)
-        selects, froms, wheres = parse_query(query_statement)
-
-        check_valid(selects, froms, wheres, tables, attributes)
+        selects, froms, wheres, valid = parse_query(query_statement)
+        if valid:
+            check_valid(selects, froms, wheres, tables, attributes)
 
 if __name__ == '__main__':
     # Create argument parser.
