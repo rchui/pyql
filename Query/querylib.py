@@ -9,8 +9,33 @@ from Interface.helplib import query_options, print_tables, print_attributes, pri
 OPERATORS = ['>=', '<=', '<>', '=', '<', '>', 'like']
 BOOLEAN = ['and', 'or', 'not']
 
-def query(tables, attributes):
+def query(reader_num, selects, froms, wheres, tables, attributes, lines):
     """ Main body of the query loop.
+
+    Args:
+        reader_num: current reader number
+        selects: select values
+        froms: from values
+        wheres: where values
+        tables: tables in the database.
+        attributes: attributes of each table.
+        lines: current line from each reader
+
+    Returns:
+        None
+    """
+    if reader_num != len(froms):
+        file_reader = open(froms[reader_num] + '.' + tables[froms[reader_num]])
+        file_reader.readline() # Throw away first line
+        for line in file_reader:
+            lines[froms[reader_num]] = [value.strip() for value in line.strip().split(',')]
+            query(reader_num + 1, selects, froms, wheres, tables, attributes, lines)
+        file_reader.close()
+    else:
+        print(lines)
+
+def get_query(tables, attributes):
+    """ Main body of the query building loop.
 
     Args:
         tables: names of the tables in the database.
