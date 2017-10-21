@@ -32,22 +32,19 @@ def print_tables(tables):
     """
     print('\n', tables, '\n')
 
-def print_attributes(tables):
+def print_attributes(attributes):
     """ Prints the attributes for each table.
 
     Args:
-        tables: tables to print.
+        attributes: attributes to print.
 
     Returns:
         None
     """
     print('\nAttributes:\n')
-    for table in tables:
-        with open(table) as relation:
-            print(table + ':')
-            print(relation.readline().split(','))
-            print()
-    print()
+    for key, value in attributes.items():
+        print(key + ':')
+        print(value, '\n')
 
 def print_query(query):
     """ Prints the current query.
