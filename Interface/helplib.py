@@ -56,3 +56,64 @@ def print_query(query):
         None
     """
     print('\n', query, '\n')
+
+def print_divider(output):
+    """ Prints a divider between the labels and results.
+
+    Args:
+        output: output to print
+
+    Returns:
+        None
+    """
+    flat_output = []
+    for sublist in output:
+        for item in sublist:
+            flat_output.append(item)
+    for i in range(13):
+        print('-', end='')
+    for i in range(len(flat_output)):
+        if i != 0:
+            print('|', end='')
+            for _ in range(14):
+                print('-', end='')
+    print()
+
+def print_output(output):
+    """ Prints the query results.
+
+    Args:
+        output: output to print
+
+    Returns:
+        None
+    """
+    flat_output = []
+    for sublist in output:
+        for item in sublist:
+            flat_output.append(item)
+    print('{:12.12}'.format(flat_output[0]), end='')
+    for i in range(len(flat_output)):
+        if i != 0:
+            print(' | {:12.12}'.format(flat_output[i]), end='')
+    print()
+
+def print_header(selects, attributes):
+    """ Prints the query result header.
+    
+    Args:
+        selects: select values
+        attributes: attributes in the tables
+
+    Returns:
+        None
+    """
+    if selects[0][0] == '*':
+        output = [[key + '.' + element for element in value]
+                    for key, value in attributes.items()]
+    else:
+        output = [[select[0] + '.' + attributes[select[0]][select[1]]]
+                    for select in selects]
+    print()
+    print_output(output)
+    print_divider(output)
