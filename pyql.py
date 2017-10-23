@@ -5,8 +5,10 @@ This file defines the main body of the pyql query process.
 
 import argparse
 from Interface.dblib import create, check, scan
+from Interface.helplib import print_header
 from Query.querylib import query, get_query, check_valid
 from Data.datalib import get_tables, get_attributes
+from Data.tablelib import get_where_indexes, get_select_indexes
 from Parser.parselib import parse_query
 
 FLAGS = None
@@ -38,11 +40,14 @@ def main():
     print(attributes)
 
     while True:
-        query_statement = get_query(tables, attributes)
-        selects, froms, wheres, parse_valid = parse_query(query_statement)
+        query_statement = get_query(tables, attributes) # Build query
+        selects, froms, wheres, parse_valid = parse_query(query_statement) # Parse query
         if parse_valid:
-            if check_valid(selects, froms, wheres, tables, attributes):
-                query(0, selects, froms, wheres, tables, attributes, {})
+            if check_valid(selects, froms, wheres, tables, attributes): # Check query validity
+                wheres = get_where_indexes(wheres, attributes) # Get where indexes
+                selects = get_select_indexes(selects, attributes) # Get select indexes
+                print_header(selects, attributes)
+                query(0, selects, froms, wheres, tables, {}) # Query tables
             else:
                 print('\nInvalid query.')
 
