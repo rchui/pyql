@@ -4,12 +4,40 @@ This file defines functions for querying the database tables.
 """
 
 import sys
-from Interface.helplib import query_options, print_tables, print_attributes, print_query
+import Logic.bool_compare as bc
+from Interface.helplib import query_options, print_tables, print_attributes, print_query, print_output
 
 OPERATORS = ['>=', '<=', '<>', '=', '<', '>', 'like']
 BOOLEAN = ['and', 'or', 'not']
 
-def query(reader_num, selects, froms, wheres, tables, attributes, lines):
+def compare(first, second, operator):
+    """ Compare two values.
+
+    Args:
+        first: first value
+        second: second value
+
+    Returns:
+        Boolean result of comparison.
+    """
+    if operator == '=':
+        return bc.equal(first, second)
+    elif operator == '<=':
+        return bc.less_than_or_equal(first, second)
+    elif operator == '>=':
+        return bc.greater_than_or_equal(first, second)
+    elif operator == '<>':
+        return bc.not_equal(first, second)
+    elif operator == '<':
+        return bc.less_than(first, second)
+    elif operator == '>':
+        return bc.greater_than(first, second)
+    elif operator == 'like':
+        return bc.like(first, second)
+    else:
+        print('\nIncorrect operator ' + operator + ' included in query.')
+
+def query(reader_num, selects, froms, wheres, tables, lines):
     """ Main body of the query loop.
 
     Args:
@@ -18,21 +46,55 @@ def query(reader_num, selects, froms, wheres, tables, attributes, lines):
         froms: from values
         wheres: where values
         tables: tables in the database.
-        attributes: attributes of each table.
         lines: current line from each reader
 
     Returns:
         None
     """
-    if reader_num != len(froms):
+    if reader_num != len(froms): # Recursively open readers for cartesian product.
         file_reader = open(froms[reader_num] + '.' + tables[froms[reader_num]])
         file_reader.readline() # Throw away first line
         for line in file_reader:
             lines[froms[reader_num]] = [value.strip() for value in line.strip().split(',')]
-            query(reader_num + 1, selects, froms, wheres, tables, attributes, lines)
+            query(reader_num + 1, selects, froms, wheres, tables, lines)
         file_reader.close()
-    else:
-        print(lines)
+    else: # All readers open, analyze all line combinations.
+        results = [None] * len(wheres)
+        for i in range(len(wheres)):
+            if len(wheres[i]) == 3: # Boolean comparison
+                if len(wheres[i][0]) == 2: # Get first value
+                    first = lines[wheres[i][0][0]][wheres[i][0][1]]
+                else:
+                    first = wheres[i][0][0]
+                if len(wheres[i][2]) == 2: # Get second value
+                    second = lines[wheres[i][2][0]][wheres[i][2][1]]
+                else:
+                    second = wheres[i][2][0]
+                results[i] = compare(first, second, wheres[i][1][0])
+            else:
+                results[i] = wheres[i][0]
+
+        # Flip all values after not then remove
+        for i in range(len(results)):
+            if results[i] == 'not':
+                results[i + 1] = not results[i + 1]
+        results = list(filter(('not').__ne__, results))
+
+        # Build result
+        is_valid = results[0]
+        for i in range(1, len(results), 2):
+            if results[i] == 'and':
+                is_valid = is_valid and results[i + 1]
+            elif results[0] == 'or':
+                is_valid = is_valid or results[i + 1]
+
+        # Print result
+        if is_valid:
+            if selects[0][0] == '*':
+                output = [value for _, value in lines.items()]
+            else:
+                output = [[lines[select[0]][select[1]]] for select in selects]
+            print_output(output)
 
 def get_query(tables, attributes):
     """ Main body of the query building loop.
@@ -111,21 +173,23 @@ def check_valid(selects, froms, wheres, tables, attributes):
             return False
 
     # Check validty of attributes
-    for attribute in selects:
-        if not check_attribute(attribute, tables, attributes):
-            return False
+    if selects[0] != '*':
+        for attribute in selects:
+            if not check_attribute(attribute, tables, attributes):
+                return False
 
     # Check validity of where statements
-    for i in range(0, len(wheres), 2):
-        if wheres[i][1].lower() not in OPERATORS:
-            return False
-        if '.' in wheres[i][0]:
-            if not check_attribute(wheres[i][0], tables, attributes):
+    for i in range(len(wheres)):
+        if len(wheres[i]) == 3:
+            if wheres[i][1].lower() not in OPERATORS:
                 return False
-        if '.' in wheres[i][2]:
-            if not check_attribute(wheres[i][0], tables, attributes):
+            if '.' in wheres[i][0]:
+                if not check_attribute(wheres[i][0], tables, attributes):
+                    return False
+            if '.' in wheres[i][2]:
+                if not check_attribute(wheres[i][0], tables, attributes):
+                    return False
+        elif len(wheres[i]) == 1:
+            if wheres[i][0] not in BOOLEAN:
                 return False
-    for i in range(1, len(wheres), 2):
-        if wheres[i][0] not in BOOLEAN:
-            return False
     return True
