@@ -1,13 +1,15 @@
-"""
-This file contains the functions for the SQL opertators to evaluate subqueries in the WHERE statements
+""" bool_compare.py
+
+This file contains the functions for the SQL opertators to evaluate subqueries
+in the WHERE statements.
 """
 import re
 
-#check if either of the two input strings is actually a float data structre, and convert if so. This function is called in each comparison operator function
 def is_float(num1, num2):
     """
-    Check if either of the two input strings is actually a float data structre, and convert if so. This function is called in each comparison operator function
-    
+    Check if either of the two input strings is actually a float data structre,
+    and convert if so. This function is called in each comparison operator function
+
     Args:
         num1: first string in WHERE subquery
         num2: second string in WHERE subquery
@@ -25,12 +27,12 @@ def is_float(num1, num2):
     return num1, num2
 
 
-def equal(value1,value2):
+def equal(value1, value2):
     """
     Args:
         value1: first string in WHERE subquery
         value2: second string in WHERE subquery
-    
+
     Returns:
         boolean value for SQL equal comparison, =
     """
@@ -126,11 +128,8 @@ def like(value1, value2):
     _: any character
     """
 
-    value2=value2.replace('%', '.+') #convert SQL any string to 1 or more characters in regex
-    value2=value2.replace('_', '.') #convert SQL any character to 1 charachter in regex
-    pattern=re.compile(value2) 
-    match=pattern.match(value1) #match object will exist only if pattern matches
-    if match:
-        return True
-    else:
-        return False
+    value2 = value2.replace('%', '.+') #convert SQL any string to 1 or more characters in regex
+    value2 = value2.replace('_', '.') #convert SQL any character to 1 character in regex
+    pattern = re.compile(value2)
+    match = pattern.match(value1) #match object will exist only if pattern matches
+    return match
