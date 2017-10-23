@@ -37,28 +37,18 @@ def compare(first, second, operator):
     else:
         print('\nIncorrect operator ' + operator + ' included in query.')
 
-def query(reader_num, selects, froms, wheres, tables, lines):
-    """ Main body of the query loop.
-
+def check_and_print(wheres, lines, selects):
+    """ Checks if the current line meets the where conditions.
+    
     Args:
-        reader_num: current reader number
-        selects: select values
-        froms: from values
         wheres: where values
-        tables: tables in the database.
-        lines: current line from each reader
+        lines: current cartesian line product
+        selects: select values
 
     Returns:
         None
     """
-    if reader_num != len(froms): # Recursively open readers for cartesian product.
-        file_reader = open(froms[reader_num] + '.' + tables[froms[reader_num]])
-        file_reader.readline() # Throw away first line
-        for line in file_reader:
-            lines[froms[reader_num]] = [value.strip() for value in line.strip().split(',')]
-            query(reader_num + 1, selects, froms, wheres, tables, lines)
-        file_reader.close()
-    else: # All readers open, analyze all line combinations.
+    if len(wheres) != 0:
         results = [None] * len(wheres)
         for i in range(len(wheres)):
             if len(wheres[i]) == 3: # Boolean comparison
@@ -85,16 +75,42 @@ def query(reader_num, selects, froms, wheres, tables, lines):
         for i in range(1, len(results), 2):
             if results[i] == 'and':
                 is_valid = is_valid and results[i + 1]
-            elif results[0] == 'or':
+            elif results[i] == 'or':
                 is_valid = is_valid or results[i + 1]
+    else:
+        is_valid = True
 
-        # Print result
-        if is_valid:
-            if selects[0][0] == '*':
-                output = [value for _, value in lines.items()]
-            else:
-                output = [[lines[select[0]][select[1]]] for select in selects]
-            print_output(output)
+    # Print result
+    if is_valid:
+        if selects[0][0] == '*':
+            output = [value for _, value in lines.items()]
+        else:
+            output = [[lines[select[0]][select[1]]] for select in selects]
+        print_output(output)
+
+def query(reader_num, selects, froms, wheres, tables, lines):
+    """ Main body of the query loop.
+
+    Args:
+        reader_num: current reader number
+        selects: select values
+        froms: from values
+        wheres: where values
+        tables: tables in the database.
+        lines: current line from each reader
+
+    Returns:
+        None
+    """
+    if reader_num != len(froms): # Recursively open readers for cartesian product.
+        file_reader = open(froms[reader_num] + '.' + tables[froms[reader_num]])
+        file_reader.readline() # Throw away first line
+        for line in file_reader:
+            lines[froms[reader_num]] = [value.strip() for value in line.strip().split(',')]
+            query(reader_num + 1, selects, froms, wheres, tables, lines)
+        file_reader.close()
+    else: # All readers open, analyze all line combinations.
+        check_and_print(wheres, lines, selects)
 
 def get_query(tables, attributes):
     """ Main body of the query building loop.
