@@ -58,7 +58,8 @@ def parse_query(query):
                   for token in re.split(r'(and|or|not|AND|OR|NOT)',
                                         re.sub(r'(where|WHERE|;|\'|‘|")', '', tokens[-1])
                                         .strip())]
-        wheres.remove([''])
+        if [''] in wheres:
+            wheres.remove([''])
         
         # Set operators to lower
         for i in range(len(wheres)):
