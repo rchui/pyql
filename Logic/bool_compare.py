@@ -8,11 +8,12 @@ import re
 def is_float(num1, num2):
     """
     Check if either of the two input strings is actually a float data structre,
-    and convert if so. This function is called in each comparison operator function
+    and convert if so.
 
     Args:
         num1: first string in WHERE subquery
         num2: second string in WHERE subquery
+
     Returns:
         tuple of inputs converted to float if possible, or string
     """
@@ -29,6 +30,8 @@ def is_float(num1, num2):
 
 def equal(value1, value2):
     """
+    Check if the two values are equal.
+
     Args:
         value1: first string in WHERE subquery
         value2: second string in WHERE subquery
@@ -43,6 +46,8 @@ def equal(value1, value2):
 
 def less_than_or_equal(value1, value2):
     """
+    Check if the first value is less than or equal to the second.
+
     Args:
         value1: first string in WHERE subquery
         value2: second string in WHERE subquery
@@ -60,9 +65,12 @@ def less_than_or_equal(value1, value2):
 
 def greater_than_or_equal(value1, value2):
     """
+    Check if the first value is greater than or equal to the second.
+
     Args:
         value1: first string in WHERE subquery
         value2: second string in WHERE subquery
+
     Returns:
         boolean value for SQL greater than or equal comparison, >=
     """
@@ -76,9 +84,12 @@ def greater_than_or_equal(value1, value2):
 
 def not_equal(value1, value2):
     """
+    Checks if the values are not equal.
+
     Args:
         value1: first string in WHERE subquery
         value2: second string in WHERE subquery
+
     Returns:
         boolean value for SQL not equal comparison, <>
     """
@@ -89,9 +100,12 @@ def not_equal(value1, value2):
 
 def less_than(value1, value2):
     """
+    Checks if the first value is less then the second.
+
     Args:
         value1: first string in WHERE subquery
         value2: second string in WHERE subquery
+
     Returns:
         boolean value for SQL less than comparison, >
     """
@@ -105,9 +119,12 @@ def less_than(value1, value2):
 
 def greater_than(value1, value2):
     """
+    Checks if the first value is greater than the second.
+
     Args:
         value1: first string in WHERE subquery
         value2: second string in WHERE subquery
+
     Returns:
         boolean value for SQL greater than comparison, >
     """
@@ -122,10 +139,18 @@ def greater_than(value1, value2):
 
 def like(value1, value2):
     """
-    return boolean value with the like comparison operator
-    assumes that value1 is beings compared with LIKE to value2
-    %: any string
-    _: any character
+    Checks if the first value is SQL-like the second.
+
+    Args:
+        value1: first string in WHERE subquery
+        value2: second string in WHERE subquery
+
+    Returns:
+        boolean value with the like comparison operator
+    
+    Notes
+        %: any string
+        _: any character
     """
 
     value2 = value2.replace('%', '.+') #convert SQL any string to 1 or more characters in regex

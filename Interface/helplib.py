@@ -100,7 +100,7 @@ def print_output(output):
 
 def print_header(selects, attributes, froms):
     """ Prints the query result header.
-    
+
     Args:
         selects: select values
         attributes: attributes in the tables
