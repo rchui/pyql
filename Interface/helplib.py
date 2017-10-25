@@ -98,22 +98,27 @@ def print_output(output):
             print(' | {:12.12}'.format(flat_output[i]), end='')
     print()
 
-def print_header(selects, attributes):
+def print_header(selects, attributes, froms):
     """ Prints the query result header.
     
     Args:
         selects: select values
         attributes: attributes in the tables
+        froms: from values
 
     Returns:
         None
     """
     if selects[0][0] == '*':
-        output = [[key + '.' + element for element in value]
-                    for key, value in attributes.items()]
+        if len(froms[0]) == 2:
+            output = [[table[1] + '.' + element for element in attributes[table[1]]]
+                      for table in froms]
+        else:
+            output = [[table[0] + '.' + element for element in attributes[table[0]]]
+                      for table in froms]
     else:
         output = [[select[0] + '.' + attributes[select[0]][select[1]]]
-                    for select in selects]
+                  for select in selects]
     print()
     print_output(output)
     print_divider(output)
