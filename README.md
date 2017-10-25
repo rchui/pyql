@@ -7,9 +7,9 @@ pyql is an ad-hoc data computing platform that can be used to perform SQL-based 
 
 ## Operators
 
-    =, >, <, <>, >=, <= for all data types except Boolean.
-    LIKE operator for Text. 
-    AND, OR, NOT for Boolean.
+* =, >, <, <>, >=, <= for all data types except Boolean.
+* LIKE operator for Text. 
+* AND, OR, NOT for Boolean.
 
 ## Usage
     pyql.py [-h] [-d DATABASE] [-n DATABASE]
