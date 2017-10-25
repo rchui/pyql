@@ -57,7 +57,7 @@ def choose(db_files):
     """ Choose a database to load.
 
     Args:
-        None
+        database: name of database
 
     Returns:
         database: name of the database.
@@ -75,14 +75,15 @@ def scan():
     """ Scans for potential databases.
 
     Args:
-        database: name of database
+        None
 
     Returns:
-        database: name of database"""
+        database: name of database
+    """
     db_files = glob.glob('*.db')
     num_dbs = len(db_files)
-    if len(db_files) > 1: # More than one database exists.
-        print('\nThere are ' + str(len(db_files)) + ' databases in the directory.')
+    if num_dbs > 1: # More than one database exists.
+        print('\nThere are ' + str(num_dbs) + ' databases in the directory.')
         for file in db_files:
             print('  ' + file.replace('.db', ''))
         database = choose(db_files)
