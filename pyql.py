@@ -34,22 +34,22 @@ def main():
     else: # Choose a potenital database if none provided.
         database = scan()
     tables = get_tables(database)
-    attributes = get_attributes(tables)
-
-    print(tables)
-    print(attributes)
+    db_attributes = get_attributes(tables)
 
     while True:
-        query_statement = get_query(tables, attributes) # Build query
-        selects, froms, wheres, parse_valid = parse_query(query_statement) # Parse query
+        pool = []
+        query_statement = get_query(tables, db_attributes) # Build query
+        selects, froms, wheres, tables, attributes, parse_valid = parse_query(query_statement, tables, db_attributes) # Parse query
         if parse_valid:
             if check_valid(selects, froms, wheres, tables, attributes): # Check query validity
                 wheres = get_where_indexes(wheres, attributes) # Get where indexes
                 selects = get_select_indexes(selects, attributes) # Get select indexes
-                print_header(selects, attributes)
-                query(0, selects, froms, wheres, tables, {}) # Query tables
+                print_header(selects, attributes, froms)
+                query(0, selects, froms, wheres, tables, {}, pool) # Query tables
             else:
                 print('\nInvalid query.')
+        for process in pool:
+            process.join()
 
 if __name__ == '__main__':
     # Create argument parser.
