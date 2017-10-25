@@ -4,6 +4,7 @@ This file defines functions for querying the database tables.
 """
 
 import sys
+from multiprocessing import Process
 import Logic.bool_compare as bc
 from Interface.helplib import query_options, print_tables, print_attributes, print_query, print_output
 
@@ -37,13 +38,14 @@ def compare(first, second, operator):
     else:
         print('\nIncorrect operator ' + operator + ' included in query.')
 
-def check_and_print(wheres, lines, selects):
+def check_and_print(wheres, lines, selects, froms):
     """ Checks if the current line meets the where conditions.
     
     Args:
         wheres: where values
         lines: current cartesian line product
         selects: select values
+        froms: from values
 
     Returns:
         None
@@ -79,16 +81,20 @@ def check_and_print(wheres, lines, selects):
                 is_valid = is_valid or results[i + 1]
     else:
         is_valid = True
+    sys.stdout.flush()
 
     # Print result
     if is_valid:
         if selects[0][0] == '*':
-            output = [value for _, value in lines.items()]
+            if len(froms[0]) == 2:
+                output = [lines[table[1]] for table in froms]
+            else:
+                output = [lines[table[0]] for table in froms]
         else:
             output = [[lines[select[0]][select[1]]] for select in selects]
         print_output(output)
 
-def query(reader_num, selects, froms, wheres, tables, lines):
+def query(reader_num, selects, froms, wheres, tables, lines, pool):
     """ Main body of the query loop.
 
     Args:
@@ -103,14 +109,20 @@ def query(reader_num, selects, froms, wheres, tables, lines):
         None
     """
     if reader_num != len(froms): # Recursively open readers for cartesian product.
-        file_reader = open(froms[reader_num] + '.' + tables[froms[reader_num]])
-        file_reader.readline() # Throw away first line
-        for line in file_reader:
-            lines[froms[reader_num]] = [value.strip() for value in line.strip().split(',')]
-            query(reader_num + 1, selects, froms, wheres, tables, lines)
-        file_reader.close()
+            file_reader = open(froms[reader_num][0] + '.' + tables[froms[reader_num][0]])
+            file_reader.readline() # Throw away first line
+            for line in file_reader:
+                if len(froms[0]) == 2:
+                    lines[froms[reader_num][1]] = [value.strip() for value in line.strip().split(',')]
+                else:
+                    lines[froms[reader_num][0]] = [value.strip() for value in line.strip().split(',')]
+                query(reader_num + 1, selects, froms, wheres, tables, lines, pool)
+            file_reader.close()
     else: # All readers open, analyze all line combinations.
-        check_and_print(wheres, lines, selects)
+        # check_and_print(wheres, lines, selects)
+        process = Process(target=check_and_print, args=(wheres, lines, selects, froms, ))
+        process.start()
+        pool.append(process)
 
 def get_query(tables, attributes):
     """ Main body of the query building loop.
@@ -126,20 +138,21 @@ def get_query(tables, attributes):
     query_statement = ''
     while not query_statement.endswith(';'):
         sub_query = input('  > ')
-        if sub_query == 'help':
-            query_options()
-        elif sub_query == 'tables':
-            print_tables(tables)
-        elif sub_query == 'attributes':
-            print_attributes(attributes)
-        elif sub_query == 'query':
-            print_query(query_statement)
-        elif sub_query == 'clear':
-            query_statement = ''
-        elif sub_query == 'exit':
-            sys.exit()
-        else:
-            query_statement += ' ' + sub_query
+        if sub_query.strip() != '':
+            if sub_query == 'help':
+                query_options()
+            elif sub_query == 'tables':
+                print_tables(tables)
+            elif sub_query == 'attributes':
+                print_attributes(attributes)
+            elif sub_query == 'query':
+                print_query(query_statement)
+            elif sub_query == 'clear':
+                query_statement = ''
+            elif sub_query == 'exit':
+                sys.exit()
+            else:
+                query_statement += ' ' + sub_query
     return query_statement
 
 def check_attribute(attribute, tables, attributes):
@@ -156,7 +169,7 @@ def check_attribute(attribute, tables, attributes):
     if len(attribute.split('.')) == 2: # If the attribute has an identifier
         pair = attribute.split('.')
         # print(pair)
-        if pair[0] not in tables.keys():
+        if pair[0] not in attributes.keys():
             return False
         elif pair[1] not in attributes[pair[0]]:
             return False
@@ -185,7 +198,7 @@ def check_valid(selects, froms, wheres, tables, attributes):
     """
     # Check validity of tables
     for table in froms:
-        if table not in tables.keys():
+        if table[0] not in tables.keys():
             return False
 
     # Check validty of attributes
