@@ -1,4 +1,4 @@
-# pyql
+# pyql - Python Query Language
 pyql is an ad-hoc data computing platform that can be used to perform SQL-based queries on data files in the CSV format. It supports SELECT-FROM-WHERE queries, a subset of SL, taking the form where R1, ..., Rm are some tables in the database, A1, ..., An are attributes from these tables, and C1, ..., Ck are simple atomic conditions of the form Ai op value, or Ai op Aj, for attributes Ai, Aj and comparison operator op.
 
     SELECT A1, ..., An
