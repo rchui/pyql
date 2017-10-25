@@ -25,16 +25,20 @@ def print_query(query):
     """
     print(sqlparse.format(query, reindent=True, keyword_case='upper'))
 
-def parse_query(query):
+def parse_query(query, tables, db_attributes):
     """ Parse the given query
 
     Args:
         query: query to parse
+        tables: tables in the database
+        db_attributes: attributes of tables in the database
 
     Returns:
         selects: select values
         froms: from values
         wheres: where values
+        parse_valid: true if valid, else false
+        attributes: attributes of tables in the database
     """
     try:
         print_query(query)
@@ -49,8 +53,13 @@ def parse_query(query):
         selects = [token.strip() for token in tokens[1].split(',')]
 
         # Get from values
-        froms = [token.strip() for token in tokens[3].split(',')]
-
+        froms = [[subtoken.strip() for subtoken in token.strip().split(' ')] for token in tokens[3].split(',')]
+        attributes = {}
+        if len(froms[0]) == 2:
+            for table in froms:
+                attributes[table[1]] = db_attributes[table[0]]
+        else:
+            attributes = db_attributes
         # Get where values
         # Don't ask what this does. It just works lol.
         wheres = [[subtoken.strip()
@@ -67,7 +76,7 @@ def parse_query(query):
                 wheres[i][1] = wheres[i][1].lower()
             elif len(wheres[i]) == 1:
                 wheres[i] = [wheres[i][0].lower()]
-        return selects, froms, wheres, True
+        return selects, froms, wheres, tables, attributes, True
     except Exception as e:
-        print('\n' + e + ': Invalid query.')
-        return selects, froms, wheres, False
+        print('\nInvalid query.')
+        return selects, froms, wheres, tables, attributes, False
