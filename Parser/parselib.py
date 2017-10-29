@@ -5,13 +5,6 @@ This file defines functions that parse the SQL queries.
 
 import re
 import imp
-
-try:
-    imp.find_module('sqlparse')
-except ImportError:
-    from subprocess import call
-    print('\nsqlparse not found. Attempting sqlparse installation.')
-    call(['pip3', 'install', 'sqlparse'])
 import sqlparse
 
 def print_query(query):
