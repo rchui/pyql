@@ -109,7 +109,8 @@ def query(reader_num, selects, froms, wheres, tables, lines, pool):
         None
     """
     if reader_num != len(froms): # Recursively open readers for cartesian product.
-            file_reader = open(froms[reader_num][0] + '.' + tables[froms[reader_num][0]])
+        print("Opening File")
+        with open(froms[reader_num][0] + '.' + tables[froms[reader_num][0]]) as file_reader:
             file_reader.readline() # Throw away first line
             for line in file_reader:
                 if len(froms[0]) == 2:
@@ -117,12 +118,8 @@ def query(reader_num, selects, froms, wheres, tables, lines, pool):
                 else:
                     lines[froms[reader_num][0]] = [value.strip() for value in line.strip().split(',')]
                 query(reader_num + 1, selects, froms, wheres, tables, lines, pool)
-            file_reader.close()
     else: # All readers open, analyze all line combinations.
-        # check_and_print(wheres, lines, selects)
-        process = Process(target=check_and_print, args=(wheres, lines, selects, froms, ))
-        process.start()
-        pool.append(process)
+        check_and_print(wheres, lines, selects, froms)
 
 def get_query(tables, attributes):
     """ Main body of the query building loop.
