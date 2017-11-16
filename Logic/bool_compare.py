@@ -153,8 +153,11 @@ def like(value1, value2):
         _: any character
     """
 
-    value2 = value2.replace('%', '.+') #convert SQL any string to 1 or more characters in regex
-    value2 = value2.replace('_', '.') #convert SQL any character to 1 character in regex
+    value2 = value2.replace('%', '\.*') #convert SQL any string to 1 or more characters in regex
+    value2 = value2.replace('_', '\.') #convert SQL any character to 1 character in regex
     pattern = re.compile(value2)
-    match = pattern.match(value1) #match object will exist only if pattern matches
-    return match
+    match = pattern.search(value1) #match object will exist only if pattern matches
+    if match == None:
+        return False
+    else:
+        return True
