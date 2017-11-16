@@ -37,7 +37,6 @@ def main():
     db_attributes = get_attributes(tables)
 
     while True:
-        pool = []
         query_statement = get_query(tables, db_attributes) # Build query
         selects, froms, wheres, tables, attributes, parse_valid = parse_query(query_statement, tables, db_attributes) # Parse query
         if parse_valid:
@@ -45,11 +44,9 @@ def main():
                 wheres = get_where_indexes(wheres, attributes) # Get where indexes
                 selects = get_select_indexes(selects, attributes) # Get select indexes
                 print_header(selects, attributes, froms)
-                query(0, selects, froms, wheres, tables, {}, pool) # Query tables
+                query(0, selects, froms, wheres, tables, {}) # Query tables
             else:
                 print('\nInvalid query.')
-        for process in pool:
-            process.join()
 
 if __name__ == '__main__':
     # Create argument parser.

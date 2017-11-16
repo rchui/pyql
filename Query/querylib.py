@@ -4,6 +4,7 @@ This file defines functions for querying the database tables.
 """
 
 import sys
+import csv
 from multiprocessing import Process
 import Logic.bool_compare as bc
 from Interface.helplib import query_options, print_tables, print_attributes, print_query, print_output
@@ -94,7 +95,7 @@ def check_and_print(wheres, lines, selects, froms):
             output = [[lines[select[0]][select[1]]] for select in selects]
         print_output(output)
 
-def query(reader_num, selects, froms, wheres, tables, lines, pool):
+def query(reader_num, selects, froms, wheres, tables, lines):
     """ Main body of the query loop.
 
     Args:
@@ -111,12 +112,12 @@ def query(reader_num, selects, froms, wheres, tables, lines, pool):
     if reader_num != len(froms): # Recursively open readers for cartesian product.
         with open(froms[reader_num][0] + '.' + tables[froms[reader_num][0]]) as file_reader:
             file_reader.readline() # Throw away first line
-            for line in file_reader:
+            for line in csv.reader(file_reader):
                 if len(froms[0]) == 2:
-                    lines[froms[reader_num][1]] = [value.strip() for value in line.strip().split(',')]
+                    lines[froms[reader_num][1]] = line
                 else:
-                    lines[froms[reader_num][0]] = [value.strip() for value in line.strip().split(',')]
-                query(reader_num + 1, selects, froms, wheres, tables, lines, pool)
+                    lines[froms[reader_num][0]] = line
+                query(reader_num + 1, selects, froms, wheres, tables, lines)
     else: # All readers open, analyze all line combinations.
         check_and_print(wheres, lines, selects, froms)
 
@@ -214,7 +215,6 @@ def check_valid(selects, froms, wheres, tables, attributes):
                 if not check_attribute(wheres[i][0], attributes):
                     return False
         elif len(wheres[i]) == 1:
-            print(wheres)
             if wheres[i][0] not in BOOLEAN:
                 return False
     return True
