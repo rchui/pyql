@@ -157,7 +157,4 @@ def like(value1, value2):
     value2 = value2.replace('_', '\.') #convert SQL any character to 1 character in regex
     pattern = re.compile(value2)
     match = pattern.search(value1) #match object will exist only if pattern matches
-    if match == None:
-        return False
-    else:
-        return True
+    return match != None
