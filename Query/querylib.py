@@ -109,7 +109,6 @@ def query(reader_num, selects, froms, wheres, tables, lines, pool):
         None
     """
     if reader_num != len(froms): # Recursively open readers for cartesian product.
-        print("Opening File")
         with open(froms[reader_num][0] + '.' + tables[froms[reader_num][0]]) as file_reader:
             file_reader.readline() # Throw away first line
             for line in file_reader:
