@@ -40,7 +40,7 @@ def compare(first, second, operator):
 
 def check_and_print(wheres, lines, selects, froms):
     """ Checks if the current line meets the where conditions.
-    
+
     Args:
         wheres: where values
         lines: current cartesian line product
@@ -151,12 +151,11 @@ def get_query(tables, attributes):
                 query_statement += ' ' + sub_query
     return query_statement
 
-def check_attribute(attribute, tables, attributes):
+def check_attribute(attribute, attributes):
     """ Checks the validity of an attribute.
 
     Args:
         attribute: attribute to check
-        table: tables in the database
         attributes: attributes in the database
 
     Returns:
@@ -200,7 +199,7 @@ def check_valid(selects, froms, wheres, tables, attributes):
     # Check validty of attributes
     if selects[0] != '*':
         for attribute in selects:
-            if not check_attribute(attribute, tables, attributes):
+            if not check_attribute(attribute, attributes):
                 return False
 
     # Check validity of where statements
@@ -209,12 +208,13 @@ def check_valid(selects, froms, wheres, tables, attributes):
             if wheres[i][1].lower() not in OPERATORS:
                 return False
             if '.' in wheres[i][0]:
-                if not check_attribute(wheres[i][0], tables, attributes):
+                if not check_attribute(wheres[i][0], attributes):
                     return False
             if '.' in wheres[i][2]:
-                if not check_attribute(wheres[i][0], tables, attributes):
+                if not check_attribute(wheres[i][0], attributes):
                     return False
         elif len(wheres[i]) == 1:
+            print(wheres)
             if wheres[i][0] not in BOOLEAN:
                 return False
     return True

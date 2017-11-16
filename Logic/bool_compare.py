@@ -147,7 +147,7 @@ def like(value1, value2):
 
     Returns:
         boolean value with the like comparison operator
-    
+
     Notes
         %: any string
         _: any character

@@ -4,7 +4,6 @@ This file defines functions that parse the SQL queries.
 """
 
 import re
-import imp
 import sqlparse
 
 def print_query(query):
@@ -56,13 +55,13 @@ def parse_query(query, tables, db_attributes):
         # Get where values
         # Don't ask what this does. It just works lol.
         wheres = [[subtoken.strip()
-                   for subtoken in re.split(r'(>=|<=|<>|=|<|>|like|LIKE)', token.strip())]
-                  for token in re.split(r'(and|or|not|AND|OR|NOT)',
-                                        re.sub(r'(where|WHERE|;|\'|‘|")', '', tokens[-1])
+                   for subtoken in re.split(r'(>=|<=|<>|=|<|>|LIKE)', token.strip())]
+                  for token in re.split(r'(AND|OR|NOT)',
+                                        re.sub(r'(WHERE|;|\'|‘|")', '', tokens[-1])
                                         .strip())]
         if [''] in wheres:
             wheres.remove([''])
-        
+
         # Set operators to lower
         for i in range(len(wheres)):
             if len(wheres[i]) == 3:
