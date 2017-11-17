@@ -3,6 +3,7 @@
 This file defines the main body of the pyql query process.
 """
 
+import time
 import argparse
 from Interface.dblib import create, check, scan
 from Interface.helplib import print_header
@@ -38,6 +39,7 @@ def main():
 
     while True:
         query_statement = get_query(tables, db_attributes) # Build query
+        start_time = time.time()
         selects, froms, wheres, tables, attributes, parse_valid = parse_query(query_statement, tables, db_attributes) # Parse query
         if parse_valid:
             if check_valid(selects, froms, wheres, tables, attributes): # Check query validity
@@ -47,6 +49,7 @@ def main():
                 query(0, selects, froms, wheres, tables, {}) # Query tables
             else:
                 print('\nInvalid query.')
+        print("\n--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     # Create argument parser.
