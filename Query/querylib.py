@@ -95,7 +95,50 @@ def check_and_print(wheres, lines, selects, froms):
             output = [[lines[select[0]][select[1]]] for select in selects]
         print_output(output)
 
-def query(reader_num, selects, froms, wheres, tables, lines):
+def query(reader_num, selects, froms, wheres, tables, conditions, lines, pool):
+    """ Main body of the query loop.
+
+    Args:
+        reader_num: current reader number
+        selects: select values
+        froms: from values
+        wheres: where values
+        tables: tables in the database.
+        lines: current line from each reader
+
+    Returns:
+        None
+    """
+    if reader_num != len(froms) - 1: # Recursively open readers for cartesian product.
+        with open(froms[reader_num][0] + '.' + tables[froms[reader_num][0]]) as file_reader:
+            file_reader.readline() # Throw away first line
+            for line in csv.reader(file_reader):
+                if froms[reader_num][1] in conditions.keys():
+                    satisfied = False
+                    for condition in conditions[froms[reader_num][1]]:
+                        satisfied = satisfied or compare(line[condition[0]], condition[2], condition[1])
+                    if satisfied:
+                        if len(froms[0]) == 2:
+                            lines[froms[reader_num][1]] = line
+                        else:
+                            lines[froms[reader_num][0]] = line
+                        query(reader_num + 1, selects, froms, wheres, tables, conditions, lines, pool)
+                else:
+                    if len(froms[0]) == 2:
+                        lines[froms[reader_num][1]] = line
+                    else:
+                        lines[froms[reader_num][0]] = line
+                    query(reader_num + 1, selects, froms, wheres, tables, conditions, lines, pool)
+    else: # All readers open, analyze all line combinations.
+        # p_query(reader_num, selects, froms, wheres, tables, lines)
+        process = Process(target=p_query, args=(reader_num, selects, froms, wheres, tables, lines, ))
+        process.start()
+        pool.append(process)
+        if len(pool) > 35:
+            for i in range(len(pool)):
+                pool.pop().join()
+
+def p_query(reader_num, selects, froms, wheres, tables, lines):
     """ Main body of the query loop.
 
     Args:
@@ -117,7 +160,7 @@ def query(reader_num, selects, froms, wheres, tables, lines):
                     lines[froms[reader_num][1]] = line
                 else:
                     lines[froms[reader_num][0]] = line
-                query(reader_num + 1, selects, froms, wheres, tables, lines)
+                p_query(reader_num + 1, selects, froms, wheres, tables, lines)
     else: # All readers open, analyze all line combinations.
         check_and_print(wheres, lines, selects, froms)
 
