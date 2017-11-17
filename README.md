@@ -14,6 +14,11 @@ pyql is an ad-hoc data computing platform that can be used to perform SQL-based 
 ## Usage
     pyql.py [-h] [-d DATABASE] [-n DATABASE]
 
+## Prepare input
+Database file: database.db
+List each one csv file per line, each csv file is a table in the database
+See test.db for example
+
 ## Optional Arguments
     -h, --help                          show this help message and exit
     -d DATABASE, --database DATABASE    database to query from
