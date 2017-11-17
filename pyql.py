@@ -3,6 +3,7 @@
 This file defines the main body of the pyql query process.
 """
 
+import sys
 import time
 import argparse
 from Interface.dblib import create, check, scan
@@ -13,6 +14,7 @@ from Data.tablelib import get_where_indexes, get_select_indexes
 from Parser.parselib import parse_query
 
 FLAGS = None
+INDEXES = {}
 """
     new: the name of the new database.
     database: the name of the database to query.
@@ -42,13 +44,16 @@ def main():
         start_time = time.time()
         selects, froms, wheres, tables, attributes, parse_valid = parse_query(query_statement, tables, db_attributes) # Parse query
         if parse_valid:
+            pool = []
             if check_valid(selects, froms, wheres, tables, attributes): # Check query validity
                 wheres = get_where_indexes(wheres, attributes) # Get where indexes
                 selects = get_select_indexes(selects, attributes) # Get select indexes
                 print_header(selects, attributes, froms)
-                query(0, selects, froms, wheres, tables, {}) # Query tables
+                query(0, selects, froms, wheres, tables, {}, pool) # Query tables
             else:
                 print('\nInvalid query.')
+            for _ in range(len(pool)):
+                pool.pop().join()
         print("\n--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':

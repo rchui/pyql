@@ -95,7 +95,39 @@ def check_and_print(wheres, lines, selects, froms):
             output = [[lines[select[0]][select[1]]] for select in selects]
         print_output(output)
 
-def query(reader_num, selects, froms, wheres, tables, lines):
+def query(reader_num, selects, froms, wheres, tables, lines, pool):
+    """ Main body of the query loop.
+
+    Args:
+        reader_num: current reader number
+        selects: select values
+        froms: from values
+        wheres: where values
+        tables: tables in the database.
+        lines: current line from each reader
+
+    Returns:
+        None
+    """
+    if reader_num != len(froms) - 1: # Recursively open readers for cartesian product.
+        with open(froms[reader_num][0] + '.' + tables[froms[reader_num][0]]) as file_reader:
+            file_reader.readline() # Throw away first line
+            for line in csv.reader(file_reader):
+                if len(froms[0]) == 2:
+                    lines[froms[reader_num][1]] = line
+                else:
+                    lines[froms[reader_num][0]] = line
+                query(reader_num + 1, selects, froms, wheres, tables, lines, pool)
+    else: # All readers open, analyze all line combinations.
+        # check_and_print(wheres, lines, selects, froms)
+        process = Process(target=p_query, args=(reader_num, selects, froms, wheres, tables, lines, ))
+        process.start()
+        pool.append(process)
+        if len(pool) > 35:
+            for _ in range(len(pool)):
+                pool.pop().join()
+
+def p_query(reader_num, selects, froms, wheres, tables, lines):
     """ Main body of the query loop.
 
     Args:
@@ -112,14 +144,40 @@ def query(reader_num, selects, froms, wheres, tables, lines):
     if reader_num != len(froms): # Recursively open readers for cartesian product.
         with open(froms[reader_num][0] + '.' + tables[froms[reader_num][0]]) as file_reader:
             file_reader.readline() # Throw away first line
+            pool = []
             for line in csv.reader(file_reader):
                 if len(froms[0]) == 2:
                     lines[froms[reader_num][1]] = line
                 else:
                     lines[froms[reader_num][0]] = line
-                query(reader_num + 1, selects, froms, wheres, tables, lines)
+                p_query(reader_num + 1, selects, froms, wheres, tables, lines)
     else: # All readers open, analyze all line combinations.
         check_and_print(wheres, lines, selects, froms)
+
+def make_index(tables, attributes):
+    """ Makes an index.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    print()
+    name = input('  CREATE INDEX ')
+    table = input('  ON ')
+    where = [element.strip() for element in input('  WHERE ').split()]
+    attribute_index = attributes[table].index(where[0])
+    print()
+
+    with open(name + '.idx', 'w') as index_writer:
+        with open(table + '.' + tables[table]) as csv_file:
+            index_writer.write(','.join(attributes[table]) + '\n')
+            for line in csv.reader(csv_file):
+                if compare(line[attribute_index], where[2], where[1]):
+                    index_writer.write(','.join(line) + '\n')
+    tables[name] = 'idx'
+    attributes[name] = attributes[table]
 
 def get_query(tables, attributes):
     """ Main body of the query building loop.
@@ -142,6 +200,8 @@ def get_query(tables, attributes):
                 print_tables(tables)
             elif sub_query == 'attributes':
                 print_attributes(attributes)
+            elif sub_query == 'index':
+                make_index(tables, attributes)
             elif sub_query == 'query':
                 print_query(query_statement)
             elif sub_query == 'clear':
