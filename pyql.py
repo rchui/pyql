@@ -11,7 +11,7 @@ from Interface.helplib import print_header
 from Query.querylib import query, get_query, check_valid
 from Data.datalib import get_tables, get_attributes
 from Data.tablelib import get_where_indexes, get_select_indexes
-from Parser.parselib import parse_query
+from Parser.parselib import parse_query, parse_comparisons
 
 FLAGS = None
 """
@@ -36,20 +36,20 @@ def main():
     else: # Choose a potenital database if none provided.
         database = scan()
     tables = get_tables(database)
-    attributes = get_attributes(tables)
+    db_attributes = get_attributes(tables)
+    indexes = {}
 
     while True:
-        query_statement = get_query(tables, attributes) # Build query
-        print(tables, '\n')
-        print(attributes, '\n')
+        query_statement = get_query(tables, db_attributes, indexes) # Build query
         start_time = time.time()
-        selects, froms, wheres, tables, attributes, parse_valid = parse_query(query_statement, tables, attributes) # Parse query
+        selects, froms, wheres, tables, attributes, parse_valid = parse_query(query_statement, tables, db_attributes) # Parse query
         if parse_valid:
             if check_valid(selects, froms, wheres, tables, attributes): # Check query validity
                 wheres = get_where_indexes(wheres, attributes) # Get where indexes
                 selects = get_select_indexes(selects, attributes) # Get select indexes
-                print_header(selects, attributes, froms)
-                query(0, selects, froms, wheres, tables, {}) # Query tables
+                print_header(selects, attributes, froms) # Print the output table header
+                comparisons = parse_comparisons(wheres, {}) # Gather all attribute comparisons
+                query(0, selects, froms, wheres, tables, attributes, indexes, {}, comparisons) # Query tables
             else:
                 print('\nInvalid query.')
         print("\n--- %s seconds ---" % (time.time() - start_time))
