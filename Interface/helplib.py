@@ -16,6 +16,7 @@ def query_options():
     print()
     print('  tables      get database tables')
     print('  attributes  get attributes for each table')
+    print('  index       create an index')
     print('  query       get the current query')
     print('  clear       clear the current query')
     print('  exit        exit pyql')

@@ -1,3 +1,0 @@
-id,name,dept
-1,Kevin Chang,CS
-2,Saurabh Sinha,Crop Sciences

@@ -1,3 +1,0 @@
-id,courses,gpa
-1,CS,3.5
-2,Crop Sciences,4.0

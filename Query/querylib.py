@@ -121,6 +121,41 @@ def query(reader_num, selects, froms, wheres, tables, lines):
     else: # All readers open, analyze all line combinations.
         check_and_print(wheres, lines, selects, froms)
 
+def make_index(tables, attributes):
+    """ Makes an index.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    print()
+    name = input('  CREATE INDEX ')
+    table = input('  ON ')
+    attribute = input('  FOR ')
+
+    with open(table + '.csv', 'r') as f:
+        with open(table + '.csv', 'r') as f_2:
+            header = f.readline().split(',')
+            f_2.readline()
+
+            tab = csv.reader(f, delimiter=',')
+            column = header.index(attribute)
+            index = {}
+
+            for row in tab:
+                key = row[column]
+                if key in index.keys():
+                    index[key].append(f_2.tell())
+                else:
+                    index[key] = [f_2.tell()]
+                f_2.readline()
+
+    tables[name] = 'idx'
+    attributes[name] = attributes[table]
+    print()
+
 def get_query(tables, attributes):
     """ Main body of the query building loop.
 
@@ -142,6 +177,8 @@ def get_query(tables, attributes):
                 print_tables(tables)
             elif sub_query == 'attributes':
                 print_attributes(attributes)
+            elif sub_query == 'index':
+                make_index(tables, attributes)
             elif sub_query == 'query':
                 print_query(query_statement)
             elif sub_query == 'clear':
