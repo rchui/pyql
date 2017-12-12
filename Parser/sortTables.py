@@ -1,7 +1,7 @@
 ## Sort tables based on 2 length comparisons and size
 import sys
 
-def order_tables(froms, indexes, comparisons, attributes):
+def order_tables(froms, indexes, comparisons, attributes, table_counts):
     """
     froms: froms list
     indexes: indexes dict
@@ -10,13 +10,27 @@ def order_tables(froms, indexes, comparisons, attributes):
     returns: Ordered tables
     """
 
-    #for key in indexes.keys():
-    #    print(key, indexes[key][0])
+#    print(froms)
+
+    #order froms by small to large
+    new_count_list=[]
+    for from_ in froms:
+        if from_[0] not in table_counts.keys():
+            
+            new_count_list.append(table_counts[indexes[from_[0]][2].split('.')[0]])
+            
+        else:
+            new_count_list.append(table_counts[from_[0]])
+
+
+    _ , froms = zip(*sorted(zip(new_count_list, froms)))
+
 
     #get the alias name and the attributeindex number of table when it has a 2 length rule
     
-    print(froms)
-    store_current_list_idx = None
+#    print(froms)
+
+    store_current_list_ind = None
     for key in comparisons.keys():
         for rule_list in comparisons[key]:
             if len(rule_list)==2:
@@ -26,28 +40,31 @@ def order_tables(froms, indexes, comparisons, attributes):
                 att_name=attributes[key][index_of_att]
     
                 for num, from_ in enumerate(froms): #num to keep track, from_ is a list in a list of lists
-                    print(num, "woooooo")
+#                    print(num, "woooooo")
                     if key==from_[1]:
                         actual=from_[0]
                         if indexes[actual][0]==att_name: #need to check if the froms is optimally ordered
-                            print(indexes[actual][0], att_name)
+#                            print(indexes[actual][0], att_name)
+#                            print(num)
                             if num != 0:
+#                                print('yes')
                                 store_current_from=from_
                                 store_current_list_ind=num
-                            else: #num==0, the tables are orderd optimally in froms, were good to go
+#                               print(store_current_from, store_current_list_ind)
                                 break
                         else:
-                            print("didn't work", indexes[actual][0], att_name)
+#                            print("didn't work", indexes[actual][0], att_name)
 
-    if store_current_list_idx != None:
+    if store_current_list_ind is not None:
         del froms[store_current_list_ind]
         froms.insert(0, store_current_from)
                 
 
 
     
-    print(froms)
+#    print(froms)
     
-    sys.exit()
+#    sys.exit()
+    return froms
 
 
