@@ -10,8 +10,10 @@ from Interface.dblib import create, check, scan
 from Interface.helplib import print_header
 from Query.querylib import query, get_query, check_valid
 from Data.datalib import get_tables, get_attributes
-from Data.tablelib import get_where_indexes, get_select_indexes
+from Data.tablelib import get_where_indexes, get_select_indexes, get_table_size
 from Parser.parselib import parse_query, parse_comparisons
+from Parser.sortTables import order_tables
+
 
 FLAGS = None
 """
@@ -37,6 +39,7 @@ def main():
         database = scan()
     tables = get_tables(database)
     db_attributes = get_attributes(tables)
+    table_counts = get_table_size(tables)
     indexes = {}
 
     while True:
@@ -49,6 +52,9 @@ def main():
                 selects = get_select_indexes(selects, attributes) # Get select indexes
                 print_header(selects, attributes, froms) # Print the output table header
                 comparisons = parse_comparisons(wheres, {}) # Gather all attribute comparisons
+
+                order_tables(froms, indexes, comparisons, attributes, table_counts)
+
                 query(0, selects, froms, wheres, tables, attributes, indexes, {}, comparisons) # Query tables
             else:
                 print('\nInvalid query.')
