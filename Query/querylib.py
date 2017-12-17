@@ -5,6 +5,7 @@ This file defines functions for querying the database tables.
 
 import sys
 import csv
+import collections
 from multiprocessing import Process
 import Logic.bool_compare as bc
 from Interface.helplib import query_options, print_tables, print_attributes, print_query, print_output
@@ -214,6 +215,8 @@ def make_index(tables, attributes, indexes):
                 else:
                     index[key] = [f_2.tell()]
                 f_2.readline()
+
+    index = collections.OrderedDict(sorted(index.items()))
 
     tables[name] = 'idx'
     attributes[name] = attributes[table]
