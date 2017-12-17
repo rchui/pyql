@@ -3,7 +3,68 @@
 This file contains the functions for the SQL opertators to evaluate subqueries
 in the WHERE statements.
 """
+
 import re
+
+
+def check_if_date(date_string):
+    """
+    Check if a string is a date in the format YYYY/MM or YYYY/MM/DD"
+
+    Args: a string value in the
+
+    Returns: True or False
+    """
+    if '-' in date_string:
+        date_string=date_string.replace('-', '/')
+
+    try:
+        date_string=date_string.split('/')
+
+        if len(date_string[0])==2 and len(date_string[1])==2 and len(date_string[2])==4:
+            try:
+                float_test=[float(x) for x in date_string]
+                if float_test[0] > 12 or float_test[0] < 1:
+                    return False
+
+                if float_test[1] > 31 or float_test[1] < 1:
+                    return False
+
+                return True
+            except:
+                return False
+
+        elif len(date_string[0])==4 and len(date_string[1])==2 and len(date_string[2])==2:
+            try:
+                float_test=[float(x) for x in date_string]
+                if float_test[1] > 12 or float_test[1] < 1:
+                    return False
+
+                if float_test[2] > 31 or float_test[2] < 1:
+                    return False
+
+                return True
+            except:
+                return False
+
+        else:
+            return False
+
+    except:
+        return False
+    
+
+def parse_date(date_string):
+    if '-' in date_string:
+        date_string=date_string.replace('-', '/')
+    date_string=date_string.split('/')
+    if len(date_string[0])==2:
+        return date_string[2]+'/'+date_string[0]+'/'+date_string[1]
+    else:
+        return date_string[0]+'/'+date_string[1]+'/'+date_string[2]
+
+#print(parse_date('12-13-1999'))
+
 
 def is_float(num1, num2):
     """
@@ -40,6 +101,11 @@ def equal(value1, value2):
         boolean value for SQL equal comparison, =
     """
 
+
+    if check_if_date(value1) and check_if_date(value2):
+        value1, value2 = parse_date(value1), parse_date(value2)
+        return value1 == value2       
+ 
     value1, value2 = is_float(value1, value2)
     return value1 == value2
 
@@ -55,6 +121,11 @@ def less_than_or_equal(value1, value2):
     Returns:
         boolean value for SQL less than or equal comparison, <=
     """
+    if check_if_date(value1) and check_if_date(value2):
+        value1, value2 = parse_date(value1), parse_date(value2)
+        return value1 <= value2
+
+
 
     value1, value2 = is_float(value1, value2)
     if type(value1) != type(value2): #will never be true
@@ -74,6 +145,9 @@ def greater_than_or_equal(value1, value2):
     Returns:
         boolean value for SQL greater than or equal comparison, >=
     """
+    if check_if_date(value1) and check_if_date(value2):
+        value1, value2 = parse_date(value1), parse_date(value2)
+        return value1 >= value2
 
     value1, value2 = is_float(value1, value2)
     if type(value1) != type(value2):
@@ -93,6 +167,11 @@ def not_equal(value1, value2):
     Returns:
         boolean value for SQL not equal comparison, <>
     """
+    if check_if_date(value1) and check_if_date(value2):
+        value1, value2 = parse_date(value1), parse_date(value2)
+        return value1 != value2
+
+
 
     value1, value2 = is_float(value1, value2)
     return value1 != value2
@@ -109,6 +188,9 @@ def less_than(value1, value2):
     Returns:
         boolean value for SQL less than comparison, >
     """
+    if check_if_date(value1) and check_if_date(value2):
+        value1, value2 = parse_date(value1), parse_date(value2)
+        return value1 < value2
 
     value1, value2 = is_float(value1, value2)
     if type(value1) != type(value2):
@@ -128,6 +210,11 @@ def greater_than(value1, value2):
     Returns:
         boolean value for SQL greater than comparison, >
     """
+
+    if check_if_date(value1) and check_if_date(value2):
+        value1, value2 = parse_date(value1), parse_date(value2)
+        return value1 > value2
+
 
     value1, value2 = is_float(value1, value2)
     if type(value1) != type(value2):
