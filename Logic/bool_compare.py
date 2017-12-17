@@ -104,7 +104,6 @@ def equal(value1, value2):
 
     if check_if_date(value1) and check_if_date(value2):
         value1, value2 = parse_date(value1), parse_date(value2)
-        print(value1, value2)
         return value1 == value2       
  
     value1, value2 = is_float(value1, value2)
