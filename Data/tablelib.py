@@ -43,3 +43,14 @@ def get_select_indexes(selects, attributes):
         return indexes
     else:
         return [selects]
+
+
+def get_table_size(tables):
+    line_counts={}
+    for table, ext in tables.items():
+        i=0
+        with open(table+'.'+ext) as fh:
+            for line in fh:
+                i+=1
+        line_counts[table]=i
+    return line_counts
