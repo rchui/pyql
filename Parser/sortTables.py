@@ -8,6 +8,9 @@ def order_tables(froms, indexes, comparisons, attributes, table_counts):
 
     returns: Ordered tables
     """
+    # If no = on index value
+    # Then find the table with the most 3 length rules
+    # Change 2 length rules to 3
 
     # print(froms)
 

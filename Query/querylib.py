@@ -113,6 +113,17 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
     Returns:
         None
     """
+    # Change 2 length rules to 3 and 3 to 4
+    # Change all indices for rules on the right side of the op
+    # A: [A.#, op, B, B.#], A: [A.#, op, #]
+    # Change get rules if reader_num == 0 get all rules
+    # else if reader_num > 0 only 3 length rules
+    # Wrap in if if not in reader_num 0
+    # If reader_num == 0
+    #   for key in index.keys()
+    #       check if 3 length rules are true
+    # Remember to add 1 to reader_num
+
     if reader_num != len(froms): # Recursively open readers for cartesian product.
         if tables[froms[reader_num][0]] == 'idx': # Table is an index
             rules = []
@@ -128,7 +139,7 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                     if attributes[alias[1]][comp[0]] == indexes[alias[0]][0]:
                         rules.append(comp)
             with open(indexes[alias[0]][2], 'r') as file_reader:
-                file_reader.readline()
+                file_reader.readline() # <-
                 if len(rules) == 0: # No rules so check every line
                     for line in csv.reader(file_reader, quotechar='"', delimiter=','):
                         if len(froms[0]) == 2:
@@ -179,7 +190,7 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                                             #     print(index[lines[froms[reader_num - 1][1]][rule[2]]], '\n')
                                             query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
                                 except:
-                                    pass
+                                    pass # <-
         else: # Table is not an index
             with open(froms[reader_num][0] + '.' + tables[froms[reader_num][0]]) as file_reader:
                 file_reader.readline() # Throw away first line
