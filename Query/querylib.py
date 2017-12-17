@@ -52,6 +52,7 @@ def check_and_print(wheres, lines, selects, froms):
     Returns:
         None
     """
+    # print(lines)
     if len(wheres) != 0:
         results = [None] * len(wheres)
         for i in range(len(wheres)):
@@ -85,6 +86,7 @@ def check_and_print(wheres, lines, selects, froms):
         is_valid = True
     sys.stdout.flush()
 
+    # print(is_valid, '\n')
     # Print result
     if is_valid:
         if selects[0][0] == '*':
@@ -128,7 +130,7 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
             with open(indexes[alias[0]][2], 'r') as file_reader:
                 file_reader.readline()
                 if len(rules) == 0: # No rules so check every line
-                    for line in csv.reader(file_reader):
+                    for line in csv.reader(file_reader, quotechar='"', delimiter=','):
                         if len(froms[0]) == 2:
                             lines[froms[reader_num][1]] = line
                         else:
@@ -136,6 +138,7 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                         query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
                 else: # There are rules
                     position_set = set()
+                    reader = csv.reader(file_reader, quotechar='"', delimiter=',')
 
                     # Look up value in index.
                     # Seek to position.
@@ -147,7 +150,8 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                                     if position not in position_set:
                                         position_set.add(position)
                                         file_reader.seek(position, 0)
-                                        line = file_reader.readline().strip().split(',')
+                                        line = file_reader.readline()
+                                        line = next(reader)
                                         if len(froms[0]) == 2:
                                             lines[froms[reader_num][1]] = line
                                         else:
@@ -162,11 +166,17 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                                         if position not in position_set:
                                             position_set.add(position)
                                             file_reader.seek(position, 0)
-                                            line = file_reader.readline().strip().split(',')
+                                            line = next(reader)
                                             if len(froms[0]) == 2:
                                                 lines[froms[reader_num][1]] = line
                                             else:
                                                 lines[froms[reader_num][0]] = line
+                                            # if reader_num == 1:
+                                            #     print('FILE:', indexes[alias[0]][2])
+                                            #     print('POSITION:', position)
+                                            #     print('LINES:', lines)
+                                            #     print(lines[froms[reader_num - 1][1]][rule[2]])
+                                            #     print(index[lines[froms[reader_num - 1][1]][rule[2]]], '\n')
                                             query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
                                 except:
                                     pass
@@ -195,33 +205,38 @@ def make_index(tables, attributes, indexes):
     name = input('  CREATE INDEX ')
     table = input('  ON ')
     attribute = input('  FOR ')
+    index = {}
+    print()
 
-    with open(table + '.csv', 'r') as f:
-        with open(table + '.csv', 'r') as f_2:
-            # Split header
-            header = f.readline().strip().split(',')
-            f_2.readline()
-
-            # Look up attribute index
-            tab = csv.reader(f, delimiter=',')
-            column = header.index(attribute)
-            index = {}
-
-            # Gather dictionary of lists of tell positions
-            for row in tab:
-                key = row[column]
-                if key in index.keys():
-                    index[key].append(f_2.tell())
-                else:
-                    index[key] = [f_2.tell()]
+    try:
+        with open(table + '.csv', 'r') as f:
+            with open(table + '.csv', 'r', newline='\r\n') as f_2:
+                # Split header
+                tab = csv.reader(f, quotechar='"', delimiter=',')
+                header = next(tab)
                 f_2.readline()
 
-    index = collections.OrderedDict(sorted(index.items()))
+                # Look up attribute index
+                column = header.index(attribute)
 
-    tables[name] = 'idx'
-    attributes[name] = attributes[table]
-    indexes[name] = [attribute, index, table + '.csv']
-    print()
+                # Gather dictionary of lists of tell positions
+                for row in tab:
+                    if row:
+                        # print(row)
+                        key = row[column]
+                        if key in index.keys():
+                            index[key].append(f_2.tell())
+                        else:
+                            index[key] = [f_2.tell()]
+                    f_2.readline()
+
+        index = collections.OrderedDict(sorted(index.items()))
+
+        tables[name] = 'idx'
+        attributes[name] = attributes[table]
+        indexes[name] = [attribute, index, table + '.csv']
+    except:
+        print('  Invalid index.', '\n')
 
 def get_query(tables, attributes, indexes):
     """ Main body of the query building loop.

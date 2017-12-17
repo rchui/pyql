@@ -51,7 +51,8 @@ def order_tables(froms, indexes, comparisons, attributes, table_counts):
                                 # print(store_current_from, store_current_list_ind)
                                 break
                         else:
-                            print("didn't work", indexes[actual][0], att_name)
+                            pass
+                            # print("didn't work", indexes[actual][0], att_name)
 
     if store_current_list_ind is not None:
         del froms[store_current_list_ind]

@@ -50,11 +50,18 @@ def main():
             if check_valid(selects, froms, wheres, tables, attributes): # Check query validity
                 wheres = get_where_indexes(wheres, attributes) # Get where indexes
                 selects = get_select_indexes(selects, attributes) # Get select indexes
-                print_header(selects, attributes, froms) # Print the output table header
                 comparisons = parse_comparisons(wheres, {}) # Gather all attribute comparisons
 
                 order_tables(froms, indexes, comparisons, attributes, table_counts)
 
+                print(selects, '\n')
+                print(wheres, '\n')
+                print(froms, '\n')
+                # print(indexes, '\n')
+                print(comparisons, '\n')
+                print(table_counts, '\n')
+
+                print_header(selects, attributes, froms) # Print the output table header
                 query(0, selects, froms, wheres, tables, attributes, indexes, {}, comparisons) # Query tables
             else:
                 print('\nInvalid query.')
