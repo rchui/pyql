@@ -11,8 +11,6 @@ def order_tables(froms, indexes, comparisons, attributes, table_counts):
     # If no = on index value
     # Then find the table with the most 3 length rules
 
-    print(froms)
-
     # order froms by small to large
     new_count_list = []
     for from_ in froms:
@@ -25,7 +23,6 @@ def order_tables(froms, indexes, comparisons, attributes, table_counts):
 
     froms=list(froms)
     # get the alias name and the attributeindex number of table when it has a 2 length rule
-    # print(froms)
 
     store_current_list_ind = None
     no_eq_on_idx=True
@@ -47,24 +44,17 @@ def order_tables(froms, indexes, comparisons, attributes, table_counts):
 
                 # num to keep track, from_ is a list in a list of lists
                 for num, from_ in enumerate(froms):
-                    # print(num, "woooooo")
                     if key == from_[1]:
                         actual = from_[0]
                         # need to check if the froms is optimally ordered
                         if indexes[actual][0] == att_name:
-                            # print(indexes[actual][0], att_name)
-                            # print(num)
                             no_eq_on_idx=False
                             if num != 0:
-                                # print('yes')
                                 store_current_from = from_
                                 store_current_list_ind = num
-                                # print(store_current_from, store_current_list_ind)
                                 break
                         else:
                             pass
-                            # print("didn't work", indexes[actual][0], att_name)
-    print(froms)
     if store_current_list_ind is not None:
         del froms[store_current_list_ind]
         froms.insert(0, store_current_from)
@@ -72,8 +62,6 @@ def order_tables(froms, indexes, comparisons, attributes, table_counts):
     if no_eq_on_idx:
         sorted_x = sorted(num_3_len_rules.items(), key=operator.itemgetter(1))
         key=sorted_x[0][0]
-        print(froms)
-        print('sortex_x:', sorted_x, 'key:', key, type(key))
         for idx, f in enumerate(froms):
             if f[1] == key:
                 key_idx = idx

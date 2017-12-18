@@ -33,7 +33,6 @@ def parse_comparisons(wheres, comparisons):
                         comparisons[where[2][0]] = [[where[2][1]] + where[1] + where[0]]
         else:
             keywords.append(where[0])
-            print(keywords)
     return comparisons
 
 def print_query(query):
