@@ -7,19 +7,33 @@ import re
 import sqlparse
 
 def parse_comparisons(wheres, comparisons):
+    #for where in wheres:
+     #   print(where)
+    #print(wheres, comparisons)
     """ Get all the equality comparisons """
+    ops=['=', '<>', '>', '<', '>=', '<=']
+    opposite_dict = {'=':['<>'], '<>':['='], '>':['<'], '<':['>'], '>=':['<'], '<=':['>']}
+    keywords=['first']
     for where in wheres:
-        if len(where) == 3 and where[1][0] == '=': # =, <>, >, <, >=, <= expanded only for 2 length
-            if len(where[0]) == 2:
-                if where[0][0] in comparisons.keys():
-                    comparisons[where[0][0]].append([where[0][1]] + where[2]) # Change length 3 -> A: [A.#, op, B, B.#], length 2 -> A: [A.#, op, #]
-                else:
-                    comparisons[where[0][0]] = [[where[0][1]] + where[2]]
-            if len(where[2]) == 2:
-                if where[2][0] in comparisons.keys():
-                    comparisons[where[2][0]].append([where[2][1]] + where[0])
-                else:
-                    comparisons[where[2][0]] = [[where[2][1]] + where[0]]
+        if len(where) == 3 and where[1][0] in ops: # =, <>, >, <, >=, <= expanded only for 2 length
+            if len(where[0]) == 2 and len(where[2]) == 2 and where[1][0] != '=':
+                continue
+            if keywords[-1] == 'not':
+                where[1] = opposite_dict[where[1][0]]
+            if len(where) == 3:
+                if len(where[0]) == 2:
+                    if where[0][0] in comparisons.keys():
+                       comparisons[where[0][0]].append([where[0][1]] + where[1] + where[2]) # Change length 3 -> A: [A.#, op, B, B.#], length 2 -> A: [A.#, op, #]
+                    else:
+                       comparisons[where[0][0]] = [[where[0][1]] + where[1] + where[2]]
+                if len(where[2]) == 2:
+                    if where[2][0] in comparisons.keys():
+                        comparisons[where[2][0]].append([where[2][1]] + where[1] + where[0])
+                    else:
+                        comparisons[where[2][0]] = [[where[2][1]] + where[1] + where[0]]
+        else:
+            keywords.append(where[0])
+            print(keywords)
     return comparisons
 
 def print_query(query):
