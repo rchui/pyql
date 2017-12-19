@@ -52,7 +52,7 @@ def main():
                 selects = get_select_indexes(selects, attributes) # Get select indexes
                 comparisons = parse_comparisons(wheres, {}) # Gather all attribute comparisons
 
-                order_tables(froms, indexes, comparisons, attributes, table_counts)
+                froms = order_tables(froms, indexes, comparisons, attributes, table_counts)
 
                 print(selects, '\n')
                 print(wheres, '\n')

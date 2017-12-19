@@ -56,48 +56,51 @@ def check_and_print(wheres, lines, selects, froms):
     # print(froms)
     # print(wheres)
     # print(lines)
-    if len(wheres) != 0:
-        results = [None] * len(wheres)
-        for i in range(len(wheres)):
-            if len(wheres[i]) == 3: # Boolean comparison
-                if len(wheres[i][0]) == 2: # Get first value
-                    first = lines[wheres[i][0][0]][wheres[i][0][1]]
+    try:
+        if len(wheres) != 0:
+            results = [None] * len(wheres)
+            for i in range(len(wheres)):
+                if len(wheres[i]) == 3: # Boolean comparison
+                    if len(wheres[i][0]) == 2: # Get first value
+                        first = lines[wheres[i][0][0]][wheres[i][0][1]]
+                    else:
+                        first = wheres[i][0][0]
+                    if len(wheres[i][2]) == 2: # Get second value
+                        second = lines[wheres[i][2][0]][wheres[i][2][1]]
+                    else:
+                        second = wheres[i][2][0]
+                    results[i] = compare(first, second, wheres[i][1][0])
                 else:
-                    first = wheres[i][0][0]
-                if len(wheres[i][2]) == 2: # Get second value
-                    second = lines[wheres[i][2][0]][wheres[i][2][1]]
-                else:
-                    second = wheres[i][2][0]
-                results[i] = compare(first, second, wheres[i][1][0])
-            else:
-                results[i] = wheres[i][0]
+                    results[i] = wheres[i][0]
 
-        # Flip all values after not then remove
-        for i in range(len(results)):
-            if results[i] == 'not':
-                results[i + 1] = not results[i + 1]
-        results = list(filter(('not').__ne__, results))
+            # Flip all values after not then remove
+            for i in range(len(results)):
+                if results[i] == 'not':
+                    results[i + 1] = not results[i + 1]
+            results = list(filter(('not').__ne__, results))
 
-        # Build result
-        is_valid = results[0]
-        for i in range(1, len(results), 2):
-            if results[i] == 'and':
-                is_valid = is_valid and results[i + 1]
-            elif results[i] == 'or':
-                is_valid = is_valid or results[i + 1]
-    else:
-        is_valid = True
-    sys.stdout.flush()
-
-    if is_valid:
-        if selects[0][0] == '*':
-            if len(froms[0]) == 2:
-                output = [lines[table[1]] for table in froms]
-            else:
-                output = [lines[table[0]] for table in froms]
+            # Build result
+            is_valid = results[0]
+            for i in range(1, len(results), 2):
+                if results[i] == 'and':
+                    is_valid = is_valid and results[i + 1]
+                elif results[i] == 'or':
+                    is_valid = is_valid or results[i + 1]
         else:
-            output = [[lines[select[0]][select[1]]] for select in selects]
-        print_output(output)
+            is_valid = True
+        sys.stdout.flush()
+
+        if is_valid:
+            if selects[0][0] == '*':
+                if len(froms[0]) == 2:
+                    output = [lines[table[1]] for table in froms]
+                else:
+                    output = [lines[table[0]] for table in froms]
+            else:
+                output = [[lines[select[0]][select[1]]] for select in selects]
+            print_output(output)
+    except:
+        pass
 
 def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines, comparisons):
     """ Main body of the query loop.
@@ -138,7 +141,7 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                 else:
                     if len(comp) == 4 and attributes[alias[1]][comp[0]] == indexes[alias[0]][0]:
                         rules.append(comp)
-            print(rules)
+            #print(rules)
             if (escape_type(indexes[alias[0]][2].split('.')[0])):
                 escape_char = '\r\n'
             else:
@@ -299,6 +302,9 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                             # There are 4 length rules
                             if froms[reader_num - 1][1] == rule[2]:
                                 try:
+
+                                    with open('pyql.log', 'w') as logfile:
+                                        logfile.write(str(index))
                                     for position in index[lines[froms[reader_num - 1][1]][rule[3]]]:
                                         if position not in position_set:
                                             position_set.add(position)
@@ -372,8 +378,8 @@ def make_index(tables, attributes, indexes):
                                 index[key].append(f_2.tell())
                             else:
                                 index[key] = [f_2.tell()]
-                            if row[5] != key:
-                                print(key, row)
+                            #if row[5] != key:
+                                #print(key, row)
                         f_2.readline()
         else:
             with open(table + '.csv', 'r') as f:
@@ -389,7 +395,6 @@ def make_index(tables, attributes, indexes):
                     # Gather dictionary of lists of tell positions
                     for row in tab:
                         if row:
-                            # print(row)
                             key = row[column]
                             if key in index.keys():
                                 index[key].append(f_2.tell())
@@ -397,13 +402,14 @@ def make_index(tables, attributes, indexes):
                                 index[key] = [f_2.tell()]
                         f_2.readline()
 
-
         index = collections.OrderedDict(sorted(index.items()))
 
         tables[name] = 'idx'
         attributes[name] = attributes[table]
         indexes[name] = [attribute, index, table + '.csv']
-    except:
+    except Exception as e:
+        print(e)
+        raise
         print('  Invalid index.', '\n')
 
 def get_query(tables, attributes, indexes):

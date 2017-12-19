@@ -22,6 +22,7 @@ def order_tables(froms, indexes, comparisons, attributes, table_counts):
     _, froms = zip(*sorted(zip(new_count_list, froms)))
 
     froms=list(froms)
+    print("PRINTING", froms)
     # get the alias name and the attributeindex number of table when it has a 2 length rule
 
     store_current_list_ind = None
@@ -43,25 +44,27 @@ def order_tables(froms, indexes, comparisons, attributes, table_counts):
                 att_name = attributes[key][index_of_att]
 
                 # num to keep track, from_ is a list in a list of lists
-                for num, from_ in enumerate(froms):
-                    if key == from_[1]:
-                        actual = from_[0]
-                        # need to check if the froms is optimally ordered
-                        if indexes[actual][0] == att_name:
-                            no_eq_on_idx=False
-                            if num != 0:
-                                store_current_from = from_
-                                store_current_list_ind = num
-                                break
-                        else:
-                            pass
+                if rule_list[1] == '=':
+                    for num, from_ in enumerate(froms):
+                        if key == from_[1]:
+                            actual = from_[0]
+                            # need to check if the froms is optimally ordered
+                            if indexes[actual][0] == att_name:
+                                no_eq_on_idx=False
+                                if num != 0:
+                                    store_current_from = from_
+                                    store_current_list_ind = num
+                                    break
+                            else:
+                                pass
     if store_current_list_ind is not None:
         del froms[store_current_list_ind]
         froms.insert(0, store_current_from)
 
     if no_eq_on_idx:
         sorted_x = sorted(num_3_len_rules.items(), key=operator.itemgetter(1))
-        key=sorted_x[0][0]
+        key=sorted_x[-1][0] #sorted list of tuples 
+        print(sorted_x)
         for idx, f in enumerate(froms):
             if f[1] == key:
                 key_idx = idx
