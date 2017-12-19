@@ -303,8 +303,6 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                             if froms[reader_num - 1][1] == rule[2]:
                                 try:
 
-                                    with open('pyql.log', 'w') as logfile:
-                                        logfile.write(str(index))
                                     for position in index[lines[froms[reader_num - 1][1]][rule[3]]]:
                                         if position not in position_set:
                                             position_set.add(position)
