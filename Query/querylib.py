@@ -57,6 +57,7 @@ def check_and_print(wheres, lines, selects, froms):
     # print(froms)
     # print(wheres)
     # print(lines)
+    # print('check_print')
     try:
         if len(wheres) != 0:
             results = [None] * len(wheres)
@@ -100,7 +101,7 @@ def check_and_print(wheres, lines, selects, froms):
             else:
                 output = [[lines[select[0]][select[1]]] for select in selects]
             print_output(output)
-    except:
+    except Exception as e:
         pass
 
 def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines, comparisons):
@@ -135,14 +136,16 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
             index = indexes[alias[0]][1]
 
             # Get all conditions that are relavent
-            for comp in comparisons[alias[1]]:
-                if reader_num == 0:
-                    if len(comp) == 3:
-                        rules.append(comp)
-                else:
-                    if len(comp) == 4 and attributes[alias[1]][comp[0]] == indexes[alias[0]][0] and comp[2] in lines.keys():
-                        rules.append(comp)
-                        break
+            if len(comparisons.items()) != 0:
+
+                for comp in comparisons[alias[1]]:
+                    if reader_num == 0:
+                        if len(comp) == 3:
+                            rules.append(comp)
+                    else:
+                        if len(comp) == 4 and attributes[alias[1]][comp[0]] == indexes[alias[0]][0] and comp[2] in lines.keys():
+                            rules.append(comp)
+                            break
             #print(rules)
             if (escape_type(indexes[alias[0]][2].split('.')[0])):
                 escape_char = '\r\n'
@@ -165,6 +168,7 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                         elif case == 0:
                             case = 3
                     if len(rules) == 0: # No rules so check every line
+                        print('no rules')
                         for line in reader:
                             if len(froms[0]) == 2:
                                 lines[froms[reader_num][1]] = line
@@ -269,8 +273,7 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                                                 lines[froms[reader_num][0]] = line
                                             query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
                                 except Exception as e:
-                                    print(e)
-                                    raise
+                                    pass
                     else: # all
                         print('all')
                         for line in csv.reader(file_reader):
@@ -447,8 +450,6 @@ def make_index(tables, attributes, indexes):
         attributes[name] = attributes[table]
         indexes[name] = [attribute, ordered_index, table + '.csv']
     except Exception as e:
-        print(e)
-        raise
         print('  Invalid index.', '\n')
 
 def get_query(tables, attributes, indexes):

@@ -22,8 +22,11 @@ def order_tables(froms, indexes, comparisons, attributes, table_counts):
     _, froms = zip(*sorted(zip(new_count_list, froms)))
 
     froms=list(froms)
-    print("PRINTING", froms)
+    # print("PRINTING", froms)
     # get the alias name and the attributeindex number of table when it has a 2 length rule
+
+    if len(comparisons.items()) == 0:
+        return froms
 
     store_current_list_ind = None
     no_eq_on_idx=True

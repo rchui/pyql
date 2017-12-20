@@ -51,15 +51,14 @@ def main():
                 wheres = get_where_indexes(wheres, attributes) # Get where indexes
                 selects = get_select_indexes(selects, attributes) # Get select indexes
                 comparisons = parse_comparisons(wheres, {}) # Gather all attribute comparisons
-
                 froms = order_tables(froms, indexes, comparisons, attributes, table_counts)
 
-                print(selects, '\n')
-                print(wheres, '\n')
-                print(froms, '\n')
+                #print(selects, '\n')
+                #print(wheres, '\n')
+                #print(froms, '\n')
                 # print(indexes, '\n')
-                print(comparisons, '\n')
-                print(table_counts, '\n')
+                #print(comparisons, '\n')
+                #print(table_counts, '\n')
 
                 print_header(selects, attributes, froms) # Print the output table header
                 query(0, selects, froms, wheres, tables, attributes, indexes, {}, comparisons) # Query tables
