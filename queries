@@ -42,3 +42,9 @@ SELECT B.name FROM business_idx B, review_idx R, photos_idx P WHERE B.city = Cha
 SELECT R.review_id, R.stars, R.useful FROM test R WHERE R.stars >= 4 AND R.useful > 20;
 
 SELECT R.review_id, R.stars, R.useful FROM test2 R WHERE R.stars >= 4 AND R.useful > 20;
+
+SELECT B.name, R1.user_id, R2.user_id FROM review1 R1, review2 R2 WHERE R1.business_id = R2.business_id AND R1.stars = 5 AND R2.stars = 1 AND R1.useful > 50 AND R2.useful > 50;
+
+select b.name, r1.user_id, r2.user_id from business_idx b, review1 r1, review2 r2 where b.business_id = r1.business_id and r1.business_id = r2.business_id and r1.stars = 5 and r2.stars = 1 and r1.useful > 50 and r2.useful > 50;
+
+select b.name, r1.user_id, r2.user_id from business_idx b, review1 r1, review2 r2 where b.business_id = r1.business_id and r1.business_id = r2.business_id and r1.stars = 5 and r2.stars = 1 and r1.useful > 50 and r2.useful > 50;

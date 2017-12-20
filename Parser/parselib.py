@@ -7,10 +7,15 @@ import re
 import sqlparse
 
 def parse_comparisons(wheres, comparisons):
-    #for where in wheres:
-     #   print(where)
-    #print(wheres, comparisons)
-    """ Get all the equality comparisons """
+    """ Get all comparisons. 
+    
+    Args:
+        wheres: where statements
+        comparisons: empty dictionary
+
+    Returns:
+        comparisons: contains all 3-length and 4-lengthr rules
+    """
     ops=['=', '<>', '>', '<', '>=', '<=']
     opposite_dict = {'=':['<>'], '<>':['='], '>':['<'], '<':['>'], '>=':['<'], '<=':['>']}
     keywords=['first']
