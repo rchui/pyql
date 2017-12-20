@@ -101,10 +101,14 @@ def equal(value1, value2):
         boolean value for SQL equal comparison, =
     """
 
-
-    if check_if_date(value1) and check_if_date(value2):
+    v1_date_check = check_if_date(value1)
+    v2_date_check = check_if_date(value2)
+    if v1_date_check and v2_date_check:
         value1, value2 = parse_date(value1), parse_date(value2)
         return value1 == value2
+
+    elif v1_date_check or v2_date_check:
+        return False
 
     value1, value2 = is_float(value1, value2)
     return value1 == value2
@@ -121,10 +125,16 @@ def less_than_or_equal(value1, value2):
     Returns:
         boolean value for SQL less than or equal comparison, <=
     """
-    if check_if_date(value1) and check_if_date(value2):
+    v1_date_check = check_if_date(value1)
+    v2_date_check = check_if_date(value2)
+
+
+    if v1_date_check and v2_date_check:
         value1, value2 = parse_date(value1), parse_date(value2)
         return value1 <= value2
 
+    elif v1_date_check or v2_date_check:
+        return False
 
 
     value1, value2 = is_float(value1, value2)
@@ -145,9 +155,15 @@ def greater_than_or_equal(value1, value2):
     Returns:
         boolean value for SQL greater than or equal comparison, >=
     """
-    if check_if_date(value1) and check_if_date(value2):
+    v1_date_check = check_if_date(value1)
+    v2_date_check = check_if_date(value2)
+
+    if v1_date_check and v2_date_check:
         value1, value2 = parse_date(value1), parse_date(value2)
         return value1 >= value2
+
+    elif v1_date_check or v2_date_check:
+        return False
 
     value1, value2 = is_float(value1, value2)
     if type(value1) != type(value2):
@@ -167,11 +183,15 @@ def not_equal(value1, value2):
     Returns:
         boolean value for SQL not equal comparison, <>
     """
-    if check_if_date(value1) and check_if_date(value2):
+    v1_date_check = check_if_date(value1)
+    v2_date_check = check_if_date(value2)
+
+    if v1_date_check and v2_date_check:
         value1, value2 = parse_date(value1), parse_date(value2)
         return value1 != value2
 
-
+    elif v1_date_check or v2_date_check:
+        return False
 
     value1, value2 = is_float(value1, value2)
     return value1 != value2
@@ -188,9 +208,17 @@ def less_than(value1, value2):
     Returns:
         boolean value for SQL less than comparison, >
     """
-    if check_if_date(value1) and check_if_date(value2):
+
+    v1_date_check = check_if_date(value1)
+    v2_date_check = check_if_date(value2)
+
+    if v1_date_check and v2_date_check:
         value1, value2 = parse_date(value1), parse_date(value2)
         return value1 < value2
+
+    elif v1_date_check or v2_date_check:
+        return False
+
 
     value1, value2 = is_float(value1, value2)
     if type(value1) != type(value2):
@@ -211,9 +239,16 @@ def greater_than(value1, value2):
         boolean value for SQL greater than comparison, >
     """
 
-    if check_if_date(value1) and check_if_date(value2):
+    v1_date_check = check_if_date(value1)
+    v2_date_check = check_if_date(value2)
+
+
+    if v1_date_check and v2_date_check:
         value1, value2 = parse_date(value1), parse_date(value2)
         return value1 > value2
+
+    elif v1_date_check or v2_date_check:
+        return False
 
 
     value1, value2 = is_float(value1, value2)
