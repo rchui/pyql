@@ -287,7 +287,7 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                                     else:
                                         lines[froms[reader_num][0]] = line
                                     query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
-                    else:
+                    else: # reader_num > 0
                         if len(rules) == 0: # No rules so check every line
                             for line in csv.reader(file_reader):
                                 if len(froms[0]) == 2:
@@ -329,12 +329,20 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                         else:
                             lines[froms[reader_num][0]] = line
                         query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
-        else: # All readers open, analyze all line combinations.
+        else: # All readers open, analyze line combinations.
             check_and_print(wheres, lines, selects, froms)
     except Exception as e:
         pass
 
 def escape_type(table):
+    """ Determine the escape type of the csv file.
+    
+    Args:
+        table: tables in the database
+
+    Returns:
+        True if carriage return type, else False.
+     """
     carriage = True
     with open(table + '.csv', 'r', newline='\r\n') as f:
         f.readline()
@@ -349,7 +357,9 @@ def make_index(tables, attributes, indexes):
     """ Makes an index.
 
     Args:
-        None
+        tables: tables in the database.
+        attributes: attributes for each table.
+        indexes: indexes for each table.
 
     Returns:
         None

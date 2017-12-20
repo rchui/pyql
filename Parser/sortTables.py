@@ -1,12 +1,18 @@
-""" Sort tables based on 2 length comparisons and size """
+""" sortTables.py
+
+Sort tables based on 3 length comparisons and size """
 import operator
 def order_tables(froms, indexes, comparisons, attributes, table_counts):
     """
-    froms: froms list
-    indexes: indexes dict
-    comparisons: comparison dict
+    Orders the tables based off of size and number of 3-length rules.
 
-    returns: Ordered tables
+    Args:
+        froms: froms list
+        indexes: indexes dict
+        comparisons: comparison dict
+
+    Returns:
+        froms: ordered from tables
     """
     # If no = on index value
     # Then find the table with the most 3 length rules

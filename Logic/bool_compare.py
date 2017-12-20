@@ -55,6 +55,14 @@ def check_if_date(date_string):
     
 
 def parse_date(date_string):
+    """ Parses the date given a particular date string.
+    
+    Args:
+        date_string: the date to be parsed.
+
+    Returns:
+        Uniformly formatted date_string.
+    """
     if '-' in date_string:
         date_string=date_string.replace('-', '/')
     date_string=date_string.split('/')

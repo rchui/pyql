@@ -46,6 +46,14 @@ def get_select_indexes(selects, attributes):
 
 
 def get_table_size(tables):
+    """ Gets the tables size of all tables in the database.
+    
+    Args:
+        tables: tables in the database
+
+    Returns:
+        None
+    """
     line_counts={}
     for table, ext in tables.items():
         i=0
