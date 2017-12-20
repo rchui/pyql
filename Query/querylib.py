@@ -9,6 +9,7 @@ import collections
 from multiprocessing import Process
 import Logic.bool_compare as bc
 from Interface.helplib import query_options, print_tables, print_attributes, print_query, print_output
+import io
 
 OPERATORS = ['>=', '<=', '<>', '=', '<', '>', 'like']
 BOOLEAN = ['and', 'or', 'not']
@@ -139,8 +140,9 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                     if len(comp) == 3:
                         rules.append(comp)
                 else:
-                    if len(comp) == 4 and attributes[alias[1]][comp[0]] == indexes[alias[0]][0]:
+                    if len(comp) == 4 and attributes[alias[1]][comp[0]] == indexes[alias[0]][0] and comp[2] in lines.keys():
                         rules.append(comp)
+                        break
             #print(rules)
             if (escape_type(indexes[alias[0]][2].split('.')[0])):
                 escape_char = '\r\n'
@@ -232,8 +234,6 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                             keys = list(index.keys())
                             key_index = keys.index(rule[2])
                             for key, value in list(index.items())[key_index + 1:]:
-                                if key <= rule[2]:
-                                    break
                                 try:
                                     for position in index[key]:
                                         if position not in position_set:
@@ -254,9 +254,6 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                             keys = list(index.keys())
                             key_index = keys.index(rule[2])
                             for key, value in list(index.items())[key_index:]:
-                                if key < rule[2]:
-                                    print('break')
-                                    break
                                 try:
                                     before = 0
                                     for position in index[key]:
@@ -300,10 +297,14 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
                         for rule in rules:
                             position_set = set()
                             # There are 4 length rules
-                            if froms[reader_num - 1][1] == rule[2]:
+                            true_reader = -1
+                            for i, from_ in enumerate(froms):
+                                if from_[1] == rule[2]:
+                                    true_reader = i
+                                    break
+                            if true_reader > -1:
                                 try:
-
-                                    for position in index[lines[froms[reader_num - 1][1]][rule[3]]]:
+                                    for position in index[lines[froms[true_reader][1]][rule[3]]]:
                                         if position not in position_set:
                                             position_set.add(position)
                                             file_reader.seek(position, 0)
@@ -359,52 +360,92 @@ def make_index(tables, attributes, indexes):
         if escape_type(table):
             with open(table + '.csv', 'r', newline='\r\n') as f:
                 with open(table + '.csv', 'r', newline='\r\n') as f_2:
-                # Split header
-                    tab = csv.reader(f, quotechar='"', delimiter=',')
-                    header = next(tab)
+                    # Split header
+                    header = f.readline()
+                    reader = csv.reader(io.StringIO(header), quotechar='"', delimiter=',')
+                    for line in reader:
+                        header = line
                     f_2.readline()
 
                     # Look up attribute index
                     column = header.index(attribute)
 
+                    first_entry = f.readline()
+                    reader = csv.reader(io.StringIO(first_entry), quotechar='"', delimiter=',')
+                    for line in reader:
+                        first_entry = line
+                    f_2.readline()
+
+                    try:
+                        float(first_entry[column])
+                        is_float = True
+                    except Exception as e:
+                        is_float = False
+
                     # Gather dictionary of lists of tell positions
-                    for row in tab:
-                        if row:
-                            # print(row)
-                            key = row[column]
-                            if key in index.keys():
-                                index[key].append(f_2.tell())
-                            else:
-                                index[key] = [f_2.tell()]
-                            #if row[5] != key:
-                                #print(key, row)
-                        f_2.readline()
+                    for line in f:
+                        for row in csv.reader(io.StringIO(line), quotechar='"', delimiter=','):
+                            if row:
+                                try:
+                                    # print(row)
+                                    key = row[column]
+
+                                    try:
+                                        float(key)
+                                        key_float = True
+                                    except Exception as e:
+                                        key_float = False
+
+                                    if is_float == key_float:
+                                        if key in index.keys():
+                                            index[key].append(f_2.tell())
+                                        else:
+                                            index[key] = [f_2.tell()]
+                                except Exception as e:
+                                    pass
+                            f_2.readline()
         else:
             with open(table + '.csv', 'r') as f:
                 with open(table + '.csv', 'r') as f_2:
-                # Split header
-                    tab = csv.reader(f, quotechar='"', delimiter=',')
-                    header = next(tab)
+                    # Split header
+                    header = f.readline()
+                    reader = csv.reader(io.StringIO(header), quotechar='"', delimiter=',')
+                    for line in reader:
+                        header = line
                     f_2.readline()
 
                     # Look up attribute index
                     column = header.index(attribute)
 
                     # Gather dictionary of lists of tell positions
-                    for row in tab:
-                        if row:
-                            key = row[column]
-                            if key in index.keys():
-                                index[key].append(f_2.tell())
-                            else:
-                                index[key] = [f_2.tell()]
-                        f_2.readline()
+                    for line in f:
+                        for row in csv.reader(io.StringIO(line), quotechar='"', delimiter=','):
+                            if row:
+                                try:
+                                    # print(row)
+                                    key = row[column]
+                                    if key in index.keys():
+                                        index[key].append(f_2.tell())
+                                    else:
+                                        index[key] = [f_2.tell()]
+                                except Exception as e:
+                                    pass
+                            f_2.readline()
 
-        index = collections.OrderedDict(sorted(index.items()))
+        ordered_index = collections.OrderedDict()
+
+        try:
+            float(list(index.keys())[0])
+            for key in sorted(index.keys(), key=float):
+                ordered_index[key] = index[key]
+        except:
+            for key in sorted(index.keys()):
+                ordered_index[key] = index[key]
+        # index = collections.OrderedDict(sorted(index.items()))
 
         tables[name] = 'idx'
         attributes[name] = attributes[table]
-        indexes[name] = [attribute, index, table + '.csv']
+        indexes[name] = [attribute, ordered_index, table + '.csv']
     except Exception as e:
         print(e)
         raise

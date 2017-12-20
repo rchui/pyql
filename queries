@@ -1,5 +1,7 @@
 SELECT R.review_id, R.stars, R.useful FROM test R WHERE R.stars >= 4 AND R.useful > 20
 
+SELECT R.review_id, R.stars, R.useful FROM test2 R WHERE R.stars >= 4 AND R.useful > 20
+
 
 SELECT R.review_id, R.stars, R.useful FROM test R WHERE R.stars <= 4 AND R.useful > 20;
 
