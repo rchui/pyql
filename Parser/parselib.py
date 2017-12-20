@@ -20,8 +20,6 @@ def parse_comparisons(wheres, comparisons):
                 continue
             if keywords[-1] == 'not':
                 where[1] = opposite_dict[where[1][0]]
-                print(where[1][0])
-                print(where)
             if len(where) == 3 and where[1][0] != 'like':
                 if len(where[0]) == 2:
                     if where[0][0] in comparisons.keys():
@@ -33,6 +31,8 @@ def parse_comparisons(wheres, comparisons):
                         comparisons[where[2][0]].append([where[2][1]] + where[1] + where[0])
                     else:
                         comparisons[where[2][0]] = [[where[2][1]] + where[1] + where[0]]
+            if keywords[-1] == 'not':
+                where[1] = opposite_dict[where[1][0]]
         else:
             keywords.append(where[0])
     return comparisons

@@ -67,7 +67,6 @@ def order_tables(froms, indexes, comparisons, attributes, table_counts):
     if no_eq_on_idx:
         sorted_x = sorted(num_3_len_rules.items(), key=operator.itemgetter(1))
         key=sorted_x[-1][0] #sorted list of tuples 
-        print(sorted_x)
         for idx, f in enumerate(froms):
             if f[1] == key:
                 key_idx = idx
