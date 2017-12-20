@@ -1,0 +1,44 @@
+SELECT R.review_id, R.stars, R.useful FROM test R WHERE R.stars >= 4 AND R.useful > 20
+
+SELECT R.review_id, R.stars, R.useful FROM test2 R WHERE R.stars >= 4 AND R.useful > 20
+
+
+SELECT R.review_id, R.stars, R.useful FROM test R WHERE R.stars <= 4 AND R.useful > 20;
+
+SELECT R.review_id, R.stars, R.useful FROM test R WHERE R.stars < 4 AND R.useful > 20;
+
+
+SELECT R.review_id, R.stars, R.useful FROM test R WHERE R.stars = 4 AND R.useful > 20;
+
+
+SELECT R.review_id, R.stars, R.useful FROM test R WHERE R.stars > 4 AND R.useful > 20;
+
+SELECT R.review_id, R.stars, R.useful FROM test R WHERE R.useful < 60 AND R.useful > 5;
+
+
+
+
+SELECT B.name, B.postal_code, R.review_id, R.stars, R.useful FROM test B, test2 R WHERE B.business_id = R.business_id AND B.city = Champaign AND B.state = IL;
+
+
+
+SELECT B.name FROM business_idx B, review_idx R, photos_idx P WHERE B.city = Champaign AND B.state = IL AND R.stars = 5 AND P.label = inside AND B.business_id = R.business_id AND B.business_id = P.business_id;
+
+index
+business_idx
+business
+business_id
+index
+review_idx
+review-1m
+business_id
+index
+photos_idx
+photos
+business_id
+
+SELECT B.name FROM business_idx B, review_idx R, photos_idx P WHERE B.city = Champaign AND B.state = IL AND P.label = inside AND B.business_id = R.business_id AND B.business_id = P.business_id;
+
+SELECT R.review_id, R.stars, R.useful FROM test R WHERE R.stars >= 4 AND R.useful > 20;
+
+SELECT R.review_id, R.stars, R.useful FROM test2 R WHERE R.stars >= 4 AND R.useful > 20;
