@@ -5,6 +5,8 @@ This file defines functions for querying the database tables.
 
 import sys
 import csv
+import collections
+import io
 from multiprocessing import Process
 import Logic.bool_compare as bc
 from Interface.helplib import query_options, print_tables, print_attributes, print_query, print_output
@@ -51,53 +53,59 @@ def check_and_print(wheres, lines, selects, froms):
     Returns:
         None
     """
-    if len(wheres) != 0:
-        results = [None] * len(wheres)
-        for i in range(len(wheres)):
-            if len(wheres[i]) == 3: # Boolean comparison
-                if len(wheres[i][0]) == 2: # Get first value
-                    first = lines[wheres[i][0][0]][wheres[i][0][1]]
+    # print(selects)
+    # print(froms)
+    # print(wheres)
+    # print(lines)
+    # print('check_print')
+    try:
+        if len(wheres) != 0:
+            results = [None] * len(wheres)
+            for i in range(len(wheres)):
+                if len(wheres[i]) == 3: # Boolean comparison
+                    if len(wheres[i][0]) == 2: # Get first value
+                        first = lines[wheres[i][0][0]][wheres[i][0][1]]
+                    else:
+                        first = wheres[i][0][0]
+                    if len(wheres[i][2]) == 2: # Get second value
+                        second = lines[wheres[i][2][0]][wheres[i][2][1]]
+                    else:
+                        second = wheres[i][2][0]
+                    results[i] = compare(first, second, wheres[i][1][0])
                 else:
-                    first = wheres[i][0][0]
-                if len(wheres[i][2]) == 2: # Get second value
-                    second = lines[wheres[i][2][0]][wheres[i][2][1]]
-                else:
-                    second = wheres[i][2][0]
-                results[i] = compare(first, second, wheres[i][1][0])
-            else:
-                results[i] = wheres[i][0]
+                    results[i] = wheres[i][0]
 
-        # Flip all values after not then remove
-        for i in range(len(results)):
-            if results[i] == 'not':
-                results[i + 1] = not results[i + 1]
-        results = list(filter(('not').__ne__, results))
+            # Flip all values after not then remove
+            for i in range(len(results)):
+                if results[i] == 'not':
+                    results[i + 1] = not results[i + 1]
+            results = list(filter(('not').__ne__, results))
 
-        # Build result
-        is_valid = results[0]
-        for i in range(1, len(results), 2):
-            if results[i] == 'and':
-                is_valid = is_valid and results[i + 1]
-            elif results[i] == 'or':
-                is_valid = is_valid or results[i + 1]
-    else:
-        is_valid = True
-    sys.stdout.flush()
-
-    # Print result
-    if is_valid:
-        if selects[0][0] == '*':
-            if len(froms[0]) == 2:
-                output = [lines[table[1]] for table in froms]
-            else:
-                output = [lines[table[0]] for table in froms]
+            # Build result
+            is_valid = results[0]
+            for i in range(1, len(results), 2):
+                if results[i] == 'and':
+                    is_valid = is_valid and results[i + 1]
+                elif results[i] == 'or':
+                    is_valid = is_valid or results[i + 1]
         else:
-            output = [[lines[select[0]][select[1]]] for select in selects]
-        print_output(output)
+            is_valid = True
+        sys.stdout.flush()
+
+        if is_valid:
+            if selects[0][0] == '*':
+                if len(froms[0]) == 2:
+                    output = [lines[table[1]] for table in froms]
+                else:
+                    output = [lines[table[0]] for table in froms]
+            else:
+                output = [[lines[select[0]][select[1]]] for select in selects]
+            print_output(output)
+    except Exception as e:
+        pass
 
 def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines, comparisons):
     """ Main body of the query loop.
-
     Args:
         reader_num: current reader number
         selects: select values
@@ -106,86 +114,252 @@ def query(reader_num, selects, froms, wheres, tables, attributes, indexes, lines
         tables: tables in the database.
         lines: current line from each reader
         comparisons: attribute to compare
-
     Returns:
         None
     """
-    if reader_num != len(froms): # Recursively open readers for cartesian product.
-        if tables[froms[reader_num][0]] == 'idx': # Table is an index
-            rules = []
-            alias = froms[reader_num]
-            index = indexes[alias[0]][1]
 
-            # Get all conditions that are relavent
-            for comp in comparisons[alias[1]]:
-                if reader_num == 0:
-                    if len(comp) == 2 and attributes[alias[1]][comp[0]] == indexes[alias[0]][0]:
-                        rules.append(comp)
+    # Change 2 length rules to 3 and 3 to 4
+    # Change all indices for rules on the right side of the op
+    # A: [A.#, op, B, B.#], A: [A.#, op, #]
+    # Change get rules if reader_num == 0 get all rules
+    # else if reader_num > 0 only 3 length rules
+    # Wrap in if if not in reader_num 0
+    # If reader_num == 0
+    #   for key in index.keys()
+    #       check if 3 length rules are true
+    # Remember to add 1 to reader_num
+    try:
+        if reader_num != len(froms): # Recursively open readers for cartesian product.
+            if tables[froms[reader_num][0]] == 'idx': # Table is an index
+                rules = []
+                alias = froms[reader_num]
+                index = indexes[alias[0]][1]
+
+                # Get all conditions that are relavent
+                if len(comparisons.items()) != 0:
+
+                    for comp in comparisons[alias[1]]:
+                        if reader_num == 0:
+                            if len(comp) == 3:
+                                rules.append(comp)
+                        else:
+                            if len(comp) == 4 and attributes[alias[1]][comp[0]] == indexes[alias[0]][0] and comp[2] in lines.keys():
+                                rules.append(comp)
+                                break
+                #print(rules)
+                if (escape_type(indexes[alias[0]][2].split('.')[0])):
+                    escape_char = '\r\n'
                 else:
-                    if attributes[alias[1]][comp[0]] == indexes[alias[0]][0]:
-                        rules.append(comp)
-            with open(indexes[alias[0]][2], 'r') as file_reader:
-                file_reader.readline()
-                if len(rules) == 0: # No rules so check every line
+                    escape_char = '\n'
+                with open(indexes[alias[0]][2], 'r', newline=escape_char) as file_reader:
+                    file_reader.readline()
+                    reader = csv.reader(file_reader, quotechar='"', delimiter=',')
+                    if reader_num == 0: # No rules, = , < or >, all
+                        rule_index = -1
+                        case = 0
+                        for i, rule in enumerate(rules):
+                            if attributes[alias[1]][rule[0]] == indexes[alias[0]][0] and rule[1] == '=':
+                                case = 1
+                                rule_index = i
+                                break
+                            elif attributes[alias[1]][rule[0]] == indexes[alias[0]][0] and rule[1] in ['<', '>', '<=', '>=']:
+                                case = 2
+                                rule_index = i
+                            elif case == 0:
+                                case = 3
+                        if len(rules) == 0: # No rules so check every line
+                            print('no rules')
+                            for line in reader:
+                                if len(froms[0]) == 2:
+                                    lines[froms[reader_num][1]] = line
+                                else:
+                                    lines[froms[reader_num][0]] = line
+                                query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
+                        elif case == 1: # = 
+                            rule = rules[rule_index]
+                            position_set = set()
+                            try:
+                                for position in index[rule[2]]:
+                                    if position not in position_set:
+                                        position_set.add(position)
+                                        file_reader.seek(position, 0)
+
+                                        line = next(reader)
+
+                                        if len(froms[0]) == 2:
+                                            lines[froms[reader_num][1]] = line
+                                        else:
+                                            lines[froms[reader_num][0]] = line
+                                        query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
+                            except Exception as e:
+                                pass
+                        elif case == 2: # <, >, <=, >=
+                            position_set = set()
+                            rule = rules[rule_index]
+                            if rule[1] == '<':
+                                for key, _ in index.items():
+                                    if key >= rule[2]:
+                                        break
+                                    try:
+                                        for position in index[key]:
+                                            if position not in position_set:
+                                                position_set.add(position)
+                                                file_reader.seek(position, 0)
+
+                                                line = next(reader)
+
+                                                if len(froms[0]) == 2:
+                                                    lines[froms[reader_num][1]] = line
+                                                else:
+                                                    lines[froms[reader_num][0]] = line
+                                                query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
+                                    except Exception as e:
+                                        pass
+                            elif rule[1] == '<=':
+                                for key, value in index.items():
+                                    if key > rule[2]:
+                                        break
+                                    try:
+                                        for position in index[key]:
+                                            if position not in position_set:
+                                                position_set.add(position)
+                                                file_reader.seek(position, 0)
+
+                                                line = next(reader)
+
+                                                if len(froms[0]) == 2:
+                                                    lines[froms[reader_num][1]] = line
+                                                else:
+                                                    lines[froms[reader_num][0]] = line
+                                                query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
+                                    except Exception as e:
+                                        pass
+                            elif rule[1] == '>':
+                                keys = list(index.keys())
+                                key_index = keys.index(rule[2])
+                                for key, value in list(index.items())[key_index + 1:]:
+                                    try:
+                                        for position in index[key]:
+                                            if position not in position_set:
+                                                position_set.add(position)
+                                                file_reader.seek(position, 0)
+
+                                                line = next(reader)
+
+                                                if len(froms[0]) == 2:
+                                                    lines[froms[reader_num][1]] = line
+                                                else:
+                                                    lines[froms[reader_num][0]] = line
+                                                query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
+                                    except Exception as e:
+                                        pass
+                            else:
+                                print('>=')
+                                keys = list(index.keys())
+                                key_index = keys.index(rule[2])
+                                for key, value in list(index.items())[key_index:]:
+                                    try:
+                                        before = 0
+                                        for position in index[key]:
+                                            if position not in position_set:
+                                                position_set.add(position)
+                                                file_reader.seek(position, 0)
+
+                                                line = next(reader)
+
+                                                if len(froms[0]) == 2:
+                                                    lines[froms[reader_num][1]] = line
+                                                else:
+                                                    lines[froms[reader_num][0]] = line
+                                                query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
+                                    except Exception as e:
+                                        pass
+                        else: # all
+                            for line in csv.reader(file_reader):
+                                is_valid = False
+                                for rule in rules:
+                                    is_valid = compare(line[rule[0]], rule[2], rule[1])
+                                    if not is_valid:
+                                        break
+                                if is_valid:
+                                    if len(froms[0]) == 2:
+                                        lines[froms[reader_num][1]] = line
+                                    else:
+                                        lines[froms[reader_num][0]] = line
+                                    query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
+                    else: # reader_num > 0
+                        if len(rules) == 0: # No rules so check every line
+                            for line in csv.reader(file_reader):
+                                if len(froms[0]) == 2:
+                                    lines[froms[reader_num][1]] = line
+                                else:
+                                    lines[froms[reader_num][0]] = line
+                                query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
+                        else: # There are rules
+                            for rule in rules:
+                                position_set = set()
+                                # There are 4 length rules
+                                true_reader = -1
+                                for i, from_ in enumerate(froms):
+                                    if from_[1] == rule[2]:
+                                        true_reader = i
+                                        break
+                                if true_reader > -1:
+                                    try:
+                                        for position in index[lines[froms[true_reader][1]][rule[3]]]:
+                                            if position not in position_set:
+                                                position_set.add(position)
+                                                file_reader.seek(position, 0)
+
+                                                line = next(reader)
+
+                                                if len(froms[0]) == 2:
+                                                    lines[froms[reader_num][1]] = line
+                                                else:
+                                                    lines[froms[reader_num][0]] = line
+                                                query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
+                                    except Exception as e:
+                                        pass
+            else: # Table is not an index
+                with open(froms[reader_num][0] + '.' + tables[froms[reader_num][0]]) as file_reader:
+                    file_reader.readline() # Throw away first line
                     for line in csv.reader(file_reader):
                         if len(froms[0]) == 2:
                             lines[froms[reader_num][1]] = line
                         else:
                             lines[froms[reader_num][0]] = line
                         query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
-                else: # There are rules
-                    position_set = set()
+        else: # All readers open, analyze line combinations.
+            check_and_print(wheres, lines, selects, froms)
+    except Exception as e:
+        pass
 
-                    # Look up value in index.
-                    # Seek to position.
-                    # Readline, split and recurse.
-                    for rule in rules:
-                        if len(rule) == 2: # There are 2 length rules
-                            try:
-                                for position in index[rule[1]]:
-                                    if position not in position_set:
-                                        position_set.add(position)
-                                        file_reader.seek(position, 0)
-                                        line = file_reader.readline().strip().split(',')
-                                        if len(froms[0]) == 2:
-                                            lines[froms[reader_num][1]] = line
-                                        else:
-                                            lines[froms[reader_num][0]] = line
-                                        query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
-                            except:
-                                pass
-                        else: # There are 3 length rules
-                            if froms[reader_num - 1][1] == rule[1]:
-                                try:
-                                    for position in index[lines[froms[reader_num - 1][1]][rule[2]]]:
-                                        if position not in position_set:
-                                            position_set.add(position)
-                                            file_reader.seek(position, 0)
-                                            line = file_reader.readline().strip().split(',')
-                                            if len(froms[0]) == 2:
-                                                lines[froms[reader_num][1]] = line
-                                            else:
-                                                lines[froms[reader_num][0]] = line
-                                            query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
-                                except:
-                                    pass
-        else: # Table is not an index
-            with open(froms[reader_num][0] + '.' + tables[froms[reader_num][0]]) as file_reader:
-                file_reader.readline() # Throw away first line
-                for line in csv.reader(file_reader):
-                    if len(froms[0]) == 2:
-                        lines[froms[reader_num][1]] = line
-                    else:
-                        lines[froms[reader_num][0]] = line
-                    query(reader_num + 1, selects, froms, wheres, tables, attributes, indexes, lines, comparisons)
-    else: # All readers open, analyze all line combinations.
-        check_and_print(wheres, lines, selects, froms)
+def escape_type(table):
+    """ Determine the escape type of the csv file.
+    
+    Args:
+        table: tables in the database
+
+    Returns:
+        True if carriage return type, else False.
+     """
+    carriage = True
+    with open(table + '.csv', 'r', newline='\r\n') as f:
+        f.readline()
+        a = f.tell()
+        f.readline()
+        b = f.tell()
+        if a == b:
+            carriage = False
+    return carriage
 
 def make_index(tables, attributes, indexes):
     """ Makes an index.
 
     Args:
-        None
+        tables: tables in the database.
+        attributes: attributes for each table.
+        indexes: indexes for each table.
 
     Returns:
         None
@@ -194,31 +368,100 @@ def make_index(tables, attributes, indexes):
     name = input('  CREATE INDEX ')
     table = input('  ON ')
     attribute = input('  FOR ')
-
-    with open(table + '.csv', 'r') as f:
-        with open(table + '.csv', 'r') as f_2:
-            # Split header
-            header = f.readline().strip().split(',')
-            f_2.readline()
-
-            # Look up attribute index
-            tab = csv.reader(f, delimiter=',')
-            column = header.index(attribute)
-            index = {}
-
-            # Gather dictionary of lists of tell positions
-            for row in tab:
-                key = row[column]
-                if key in index.keys():
-                    index[key].append(f_2.tell())
-                else:
-                    index[key] = [f_2.tell()]
-                f_2.readline()
-
-    tables[name] = 'idx'
-    attributes[name] = attributes[table]
-    indexes[name] = [attribute, index, table + '.csv']
+    index = {}
     print()
+    try:
+        if escape_type(table):
+            with open(table + '.csv', 'r', newline='\r\n') as f:
+                with open(table + '.csv', 'r', newline='\r\n') as f_2:
+                    # Split header
+                    header = f.readline()
+                    reader = csv.reader(io.StringIO(header), quotechar='"', delimiter=',')
+                    for line in reader:
+                        header = line
+                    f_2.readline()
+
+                    # Look up attribute index
+                    column = header.index(attribute)
+
+                    first_entry = f.readline()
+                    reader = csv.reader(io.StringIO(first_entry), quotechar='"', delimiter=',')
+                    for line in reader:
+                        first_entry = line
+                    f_2.readline()
+
+                    try:
+                        float(first_entry[column])
+                        is_float = True
+                    except Exception as e:
+                        is_float = False
+
+                    # Gather dictionary of lists of tell positions
+                    for line in f:
+                        for row in csv.reader(io.StringIO(line), quotechar='"', delimiter=','):
+                            if row:
+                                try:
+                                    # print(row)
+                                    key = row[column]
+
+                                    try:
+                                        float(key)
+                                        key_float = True
+                                    except Exception as e:
+                                        key_float = False
+
+                                    if is_float == key_float:
+                                        if key in index.keys():
+                                            index[key].append(f_2.tell())
+                                        else:
+                                            index[key] = [f_2.tell()]
+                                except Exception as e:
+                                    pass
+                            f_2.readline()
+        else:
+            with open(table + '.csv', 'r') as f:
+                with open(table + '.csv', 'r') as f_2:
+                    # Split header
+                    header = f.readline()
+                    reader = csv.reader(io.StringIO(header), quotechar='"', delimiter=',')
+                    for line in reader:
+                        header = line
+                    f_2.readline()
+
+                    # Look up attribute index
+                    column = header.index(attribute)
+
+                    # Gather dictionary of lists of tell positions
+                    for line in f:
+                        for row in csv.reader(io.StringIO(line), quotechar='"', delimiter=','):
+                            if row:
+                                try:
+                                    # print(row)
+                                    key = row[column]
+                                    if key in index.keys():
+                                        index[key].append(f_2.tell())
+                                    else:
+                                        index[key] = [f_2.tell()]
+                                except Exception as e:
+                                    pass
+                            f_2.readline()
+
+        ordered_index = collections.OrderedDict()
+
+        try:
+            float(list(index.keys())[0])
+            for key in sorted(index.keys(), key=float):
+                ordered_index[key] = index[key]
+        except:
+            for key in sorted(index.keys()):
+                ordered_index[key] = index[key]
+        # index = collections.OrderedDict(sorted(index.items()))
+
+        tables[name] = 'idx'
+        attributes[name] = attributes[table]
+        indexes[name] = [attribute, ordered_index, table + '.csv']
+    except Exception as e:
+        print('  Invalid index.', '\n')
 
 def get_query(tables, attributes, indexes):
     """ Main body of the query building loop.
