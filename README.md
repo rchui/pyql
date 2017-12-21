@@ -45,3 +45,9 @@ See test.db for example
     # Query on the index created.
     # Always use an alias and do not use quotes ', " unless denoting empty space like '' or "".
     > SELECT R.review_id, R.stars, R.useful FROM review_idx R WHERE R.stars >= 4 AND R.useful > 20;
+
+    # Note that we don't support the join statement.
+    # Instead, declare two tables and the join in the WHERE clause
+    > SELECT ... FROM review R JOIN Business B ON (B.id = R.id) WHERE ...
+    # To
+    > SELECT ... FROM review R, Business B WHERE B.id = R.id AND ...
