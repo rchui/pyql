@@ -39,8 +39,8 @@ See test.db for example
     > index
 
     CREATE INDEX review_idx
-    ON review-1m
-    FOR stars
+    FOR review-1m
+    ON stars
 
     # Query on the index created.
     # Always use an alias and do not use quotes ', " unless denoting empty space like '' or "".
