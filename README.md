@@ -23,3 +23,25 @@ See test.db for example
     -h, --help                          show this help message and exit
     -d DATABASE, --database DATABASE    database to query from
     -n DATABASE, --new DATABASE         create a new database
+
+## Example and Notes
+    # Make a new database and follow directions to add csv files.
+    # When adding csv files include '.csv'
+    > python3 pyql -n yelp
+    > business.csv
+    > review-1m.csv
+    > photos.csv
+    >
+
+    # To make indexes specify index name, table, and attribute
+    # When entering tables don't include '.csv'
+    # Attributes should be the same as in the table. Type 'attributes' to see them.
+    > index
+
+    CREATE INDEX review_idx
+    ON review-1m
+    FOR stars
+
+    # Query on the index created.
+    # Always use an alias and do not use quotes ', " unless denoting empty space like '' or "".
+    > SELECT R.review_id, R.stars, R.useful FROM review_idx R WHERE R.stars >= 4 AND R.useful > 20;
