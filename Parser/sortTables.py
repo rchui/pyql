@@ -69,15 +69,17 @@ def order_tables(froms, indexes, comparisons, attributes, table_counts):
     if store_current_list_ind is not None:
         del froms[store_current_list_ind]
         froms.insert(0, store_current_from)
-
-    if no_eq_on_idx:
-        sorted_x = sorted(num_3_len_rules.items(), key=operator.itemgetter(1))
-        key=sorted_x[-1][0] #sorted list of tuples 
-        for idx, f in enumerate(froms):
-            if f[1] == key:
-                key_idx = idx
-                new_from = f
-                break
-        del froms[key_idx]
-        froms.insert(0, new_from)
-    return froms
+    try:
+        if no_eq_on_idx:
+            sorted_x = sorted(num_3_len_rules.items(), key=operator.itemgetter(1))
+            key=sorted_x[-1][0] #sorted list of tuples 
+            for idx, f in enumerate(froms):
+                if f[1] == key:
+                    key_idx = idx
+                    new_from = f
+                    break
+            del froms[key_idx]
+            froms.insert(0, new_from)
+        return froms
+    except:
+        return froms
