@@ -7,6 +7,7 @@ import sys
 import csv
 import collections
 import io
+import time
 from multiprocessing import Process
 import Logic.bool_compare as bc
 from Interface.helplib import query_options, print_tables, print_attributes, print_query, print_output
@@ -455,11 +456,15 @@ def make_index(tables, attributes, indexes):
         except:
             for key in sorted(index.keys()):
                 ordered_index[key] = index[key]
-        # index = collections.OrderedDict(sorted(index.items()))
+
+        with open(name + '.idx', 'w') as index_writer:
+            index_writer.write(attribute + '\n')
+            index_writer.write(table + '\n')
+            for key, value in ordered_index.items():
+                index_writer.write(key + ',' + ','.join(str(x) for x in value) + '\n')
 
         tables[name] = 'idx'
         attributes[name] = attributes[table]
-        indexes[name] = [attribute, ordered_index, table + '.csv']
     except Exception as e:
         print('  Invalid index.', '\n')
 

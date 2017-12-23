@@ -10,7 +10,7 @@ from Interface.dblib import create, check, scan
 from Interface.helplib import print_header
 from Query.querylib import query, get_query, check_valid
 from Data.datalib import get_tables, get_attributes
-from Data.tablelib import get_where_indexes, get_select_indexes, get_table_size
+from Data.tablelib import get_where_indexes, get_select_indexes, get_table_size, load_indexes
 from Parser.parselib import parse_query, parse_comparisons
 from Parser.sortTables import order_tables
 
@@ -50,6 +50,7 @@ def main():
             if check_valid(selects, froms, wheres, tables, attributes): # Check query validity
                 wheres = get_where_indexes(wheres, attributes) # Get where indexes
                 selects = get_select_indexes(selects, attributes) # Get select indexes
+                indexes = load_indexes(froms, tables, indexes) # Load indexes used in query
                 comparisons = parse_comparisons(wheres, {}) # Gather all attribute comparisons
                 froms = order_tables(froms, indexes, comparisons, attributes, table_counts)
                 print_header(selects, attributes, froms) # Print the output table header

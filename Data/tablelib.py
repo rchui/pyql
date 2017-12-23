@@ -3,6 +3,32 @@
 This file defines functions for getting table information.
 """
 
+import csv
+import collections
+
+def load_indexes(froms, tables, indexes):
+    """ Load indexes into memory.
+    
+    Args:
+        froms: tables to query
+        tables: tables in the database
+        indexes: indexes in the database
+
+    Return:
+        indexes: indexes for the current query
+    """
+    indexes = {}
+    for from_ in froms:
+        if tables[from_[0]] == 'idx':
+            index = collections.OrderedDict()
+            with open(from_[0] + '.idx', 'r') as index_reader:
+                attribute = index_reader.readline().strip()
+                table = index_reader.readline().strip()
+                for line in csv.reader(index_reader, quotechar='"', delimiter=','):
+                    index[line[0]] = [int(x) for x in line[1:] if x.isdigit()]
+            indexes[from_[0]] = [attribute, index, table + '.csv']
+    return indexes
+
 def get_where_indexes(wheres, attributes):
     """ Gets the indexes for all where statements.
 
